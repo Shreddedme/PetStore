@@ -36,6 +36,16 @@ class User
     #[ORM\Column(type: 'integer', nullable: true)]
     private int $updatedBy;
 
+    /**
+     * @param string|null $name
+     * @param string|null $roles
+     */
+    public function __construct(?string $name, ?string $roles)
+    {
+        $this->name = $name;
+        $this->roles = $roles;
+    }
+
     public function getId(): ?int
     {
         return $this->id;
@@ -46,7 +56,7 @@ class User
         return $this->name;
     }
 
-    public function setName(string $name): static
+    public function setName(string $name): self
     {
         $this->name = $name;
 
@@ -58,7 +68,7 @@ class User
         return $this->roles;
     }
 
-    public function setRoles(?string $roles): static
+    public function setRoles(?string $roles): self
     {
         $this->roles = $roles;
 
@@ -104,6 +114,4 @@ class User
     {
         $this->updatedBy = $updatedBy;
     }
-
-
 }

@@ -37,6 +37,18 @@ class Pet
     #[ORM\Column(type: 'integer', nullable: true)]
     private int $updatedBy;
 
+    /**
+     * @param string|null $name
+     * @param string|null $description
+     * @param DateTime $createdAt
+     * @param DateTime $updatedAt
+     */
+    public function __construct(?string $name, ?string $description)
+    {
+        $this->name = $name;
+        $this->description = $description;
+    }
+
     public function getId(): ?int
     {
         return $this->id;
@@ -47,7 +59,7 @@ class Pet
         return $this->name;
     }
 
-    public function setName(string $name): static
+    public function setName(string $name): self
     {
         $this->name = $name;
 
@@ -59,7 +71,7 @@ class Pet
         return $this->description;
     }
 
-    public function setDescription(?string $description): static
+    public function setDescription(?string $description): self
     {
         $this->description = $description;
 
@@ -105,5 +117,4 @@ class Pet
     {
         $this->updatedBy = $updatedBy;
     }
-
 }
