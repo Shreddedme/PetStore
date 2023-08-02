@@ -4,6 +4,7 @@ namespace App\User;
 
 use App\Entity\User;
 use App\Repository\UserRepository;
+use App\UserDto\UserRequestDto;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 class UserUseCase
@@ -14,9 +15,9 @@ class UserUseCase
     )
     {}
 
-    public function create(string $name, string $roles): ?User
+    public function create(UserRequestDto $userRequestDto): ?User
     {
-        $user = new User($name, $roles);
+        $user = new User($userRequestDto->name, $userRequestDto->roles);
         $user->setCreatedBy(1);
 
         $this->entityManager->persist($user);
