@@ -5,10 +5,12 @@ namespace App\Controller;
 use App\UserDto\UserRequestDto;
 use  App\UserDto\UserResponseDto;
 use App\User\UserUseCase;
+use App\UserForm\UserFormType;
 use OpenApi\Annotations as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
@@ -20,7 +22,7 @@ class UserController extends AbstractController
     )
     {}
 
-     #[Route('/api/user/add', methods:'POST')]
+     #[Route('/api/user/add',name:'api_user_add', methods:'POST')]
      /**
       * Создать пользователя
       * @OA\Tag(name="User")
@@ -49,6 +51,17 @@ class UserController extends AbstractController
     {
         $this->userUseCase->create($userRequestDto);
         return $this->json('user created');
+    }
+
+    #[Route('/api/create', methods: 'GET')]
+    public function createFromForm(): Response
+    {
+        $form = $this->createForm(UserFormType::class);
+        dump($form);
+
+        return $this->render('user/user.html.twig', [
+            'form' => $form->createView()
+        ]);
     }
  /**
  *
