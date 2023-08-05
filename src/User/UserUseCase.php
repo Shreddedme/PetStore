@@ -15,9 +15,9 @@ class UserUseCase
     )
     {}
 
-    public function create(UserRequestDto $userRequestDto): ?User
+    public function create(string $name, string $roles): ?User
     {
-        $user = new User($userRequestDto->name, $userRequestDto->roles);
+        $user = new User($name, $roles);
         $user->setCreatedBy(1);
 
         $this->entityManager->persist($user);

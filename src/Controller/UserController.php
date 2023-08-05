@@ -26,11 +26,6 @@ class UserController extends AbstractController
      /**
       * Создать пользователя
       * @OA\Tag(name="User")
-      * @ParamConverter(
-      *       "userRequestDto",
-      *       class=UserRequestDto::class,
-      *       options={"mapping": {"name": "name", "roles": "roles"}}
-      *   ),
       * @OA\RequestBody(
       *      required=true,
       *      @Model(type=UserRequestDto::class)
@@ -42,26 +37,16 @@ class UserController extends AbstractController
       *  ),
       * @OA\Response(
       *       response=400,
-      *       description="Ошибка валидации",
-      *       @OA\JsonContent(ref=@Model(type=UserResponseDto::class))
+      *       description="Ошибка валидации"
       *   ),
       * @return JsonResponse
       */
-    public function create(UserRequestDto $userRequestDto): JsonResponse
+    public function create(Request $request): JsonResponse
     {
-        $this->userUseCase->create($userRequestDto);
-        return $this->json('user created');
-    }
-
-    #[Route('/api/create', methods: 'GET')]
-    public function createFromForm(): Response
-    {
-        $form = $this->createForm(UserFormType::class);
-        dump($form);
-
-        return $this->render('user/user.html.twig', [
-            'form' => $form->createView()
-        ]);
+        $name = $request->get('name');
+        $roles = $request->get('roles');
+        $user = $this->userUseCase->create($name, $roles);
+        return $this->json($user);
     }
  /**
  *
@@ -79,7 +64,6 @@ class UserController extends AbstractController
  * @param Request $request
  * @return JsonResponse
  */
-
     #[Route('/api/user/{id}', methods: 'GET')]
     public function getOne(int $id): JsonResponse
     {
