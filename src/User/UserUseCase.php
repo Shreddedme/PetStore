@@ -4,7 +4,6 @@ namespace App\User;
 
 use App\Entity\User;
 use App\Repository\UserRepository;
-use App\UserDto\UserRequestDto;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 class UserUseCase

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css" />
+</head>
+
+<body>
+<header class="container">
+
+</header>
+<main class="container">
+        <h2>Обновить пользователя</h2>
+            {{ form_start(form) }}
+            <div>
+                {{ form_label(form.name) }}
+                {{ form_widget(form.name) }}
+            </div>
+            <div>
+                {{ form_label(form.roles) }}
+                {{ form_widget(form.roles) }}
+            </div>
+            <div>
+                <button type="submit">Сохранить</button>
+            </div>
+            {{ form_end(form) }}
+</body>
+</html>

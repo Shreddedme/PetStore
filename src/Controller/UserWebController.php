@@ -32,7 +32,7 @@ class UserWebController extends AbstractController
             return $this->redirectToRoute('app_user_list');
         }
 
-        return $this->render('user_web/createUser.html.twig', [
+        return $this->render('user_web/createUserBootstrap.html.twig', [
             'form' => $form->createView(),
         ]);
     }
@@ -42,7 +42,7 @@ class UserWebController extends AbstractController
     {
         $users = $this->userUseCase->findAll();
 
-        return $this->render('user_web/getListUser.html.twig', [
+        return $this->render('user_web/getListUserBootstrap.html.twig', [
             'users' => $users,
         ]);
     }
@@ -67,7 +67,7 @@ class UserWebController extends AbstractController
             return $this->redirectToRoute('app_user_list');
         }
 
-        return $this->render('user_web/updateUser.html.twig', [
+        return $this->render('user_web/updateUserBootstrap.html.twig', [
             'form' => $form->createView(),
         ]);
     }

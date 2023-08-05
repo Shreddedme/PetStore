@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css" />
+</head>
+<main class="container">
+    <section id="tables">
+        <h2>Список пользователей</h2>
+        <figure>
+            <table role="grid">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Имя</th>
+                    <th>Полномочия</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for user in users %}
+                    <tr>
+                        <td>{{ user.id }}</td>
+                        <td>{{ user.name }}</td>
+                        <td>{{ user.roles }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </figure>
+    </section>
+</body>
+</html>
