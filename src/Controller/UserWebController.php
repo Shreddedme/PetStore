@@ -2,11 +2,9 @@
 
 namespace App\Controller;
 
-use App\User\UserUseCase;
-use App\UserForm\UserFormType;
-use Doctrine\ORM\EntityManagerInterface;
+use App\Model\UserForm\UserFormType;
+use App\Service\User\UserUseCase;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;

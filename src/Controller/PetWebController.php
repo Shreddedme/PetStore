@@ -3,7 +3,7 @@
 namespace App\Controller;
 
 use App\Model\PetForm\PetFormType;
-use App\Pet\PetUseCase;
+use App\Service\Pet\PetUseCase;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;

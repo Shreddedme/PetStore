@@ -1,11 +1,12 @@
 <?php
 
-namespace App\Pet;
+namespace App\Service\Pet;
 
 use App\Entity\Pet;
 use App\Repository\PetRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
+
 class PetUseCase
 {
     public function __construct(

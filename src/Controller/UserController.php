@@ -2,18 +2,14 @@
 
 namespace App\Controller;
 
-use App\UserDto\UserRequestDto;
-use  App\UserDto\UserResponseDto;
-use App\User\UserUseCase;
-use App\UserForm\UserFormType;
+use App\Service\User\UserUseCase;
+use App\Service\User;
 use OpenApi\Annotations as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Nelmio\ApiDocBundle\Annotation\Model;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 
 class UserController extends AbstractController
 {
@@ -24,22 +20,19 @@ class UserController extends AbstractController
 
      #[Route('/api/user/add',name:'api_user_add', methods:'POST')]
      /**
-      * Создать пользователя
-      * @OA\Tag(name="User")
-      * @OA\RequestBody(
-      *      required=true,
-      *      @Model(type=UserRequestDto::class)
-      *  )
-      * @OA\Response(
-      *      response=200,
-      *      description="Пользователь создан",
-      *      @OA\JsonContent(ref=@Model(type=UserResponseDto::class))
-      *  ),
-      * @OA\Response(
-      *       response=400,
-      *       description="Ошибка валидации"
-      *   ),
-      * @return JsonResponse
+      *     @OA\RequestBody(
+      *         required=true,
+      *         @OA\JsonContent(
+      *             @OA\Property(property="name", type="string"),
+      *             @OA\Property(property="roles", type="string")
+      *         )
+      *     ),
+      *     @OA\Response(
+      *         response=200,
+      *         description="Пользователь создан",
+      *         @OA\JsonContent(ref=@Model(type=\App\Entity\User::class))
+      *     )
+      *
       */
     public function create(Request $request): JsonResponse
     {

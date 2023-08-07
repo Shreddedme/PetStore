@@ -1,11 +1,12 @@
 <?php
 
-namespace App\User;
+namespace App\Service\User;
 
 use App\Entity\User;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
+
 class UserUseCase
 {
     public function __construct(
