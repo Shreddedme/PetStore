@@ -14,6 +14,7 @@
                     <th>ID</th>
                     <th>Имя</th>
                     <th>Описание</th>
+                    <th>Владелец</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -22,6 +23,7 @@
                         <td>{{ pet.id }}</td>
                         <td>{{ pet.name }}</td>
                         <td>{{ pet.description }}</td>
+                        <td>{{ pet.ownerName }}</td>
                     </tr>
                 {% endfor %}
                 </tbody>

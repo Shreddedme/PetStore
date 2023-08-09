@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Model\Dto\PetDto;
 use App\Model\PetForm\PetFormType;
 use App\Service\Pet\PetUseCase;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -9,12 +10,18 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
+
 class PetWebController extends AbstractController
 {
     public function __construct(
         private PetUseCase $petUseCase,
     )
     {}
+    #[Route('/pet/menu')]
+    public function main(): Response
+    {
+        return $this->render('pet_web/menuPet.html.twig');
+    }
 
     #[Route('/pet/add', name: 'app_pet_web')]
     public function createFromForm(Request $request): Response
@@ -22,10 +29,12 @@ class PetWebController extends AbstractController
         $form = $this->createForm(PetFormType::class);
         $form->handleRequest($request);
 
-        if ($request->isMethod('POST')) {
-            $name = $request->request->get('name');
-            $description = $request->request->get('description');
-            $this->petUseCase->create($name, $description);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $petDto = new PetDto();
+            $petDto->setName($form->get('name')->getData());
+            $petDto->setDescription($form->get('description')->getData());
+            $petDto->setCreatedBy($form->get('createdBy')->getData());
+            $this->petUseCase->create($petDto);
 
             return $this->redirectToRoute('app_pet_list');
         }
@@ -49,18 +58,15 @@ class PetWebController extends AbstractController
     public function update(Request $request, int $id): Response
     {
         $pet = $this->petUseCase->find($id);
-
-        if (!$pet) {
-            throw $this->createNotFoundException('Питомец не найден');
-        }
-
         $form = $this->createForm(PetFormType::class, $pet);
         $form->handleRequest($request);
 
-        if ($request->isMethod('POST')) {
-            $this->petUseCase->update( $id,
-                $form->get('name')->getData(),
-                $form->get('description')->getData());
+        if ($form->isSubmitted() && $form->isValid()) {
+            $petDto = new PetDto();
+            $petDto->setName($form->get('name')->getData());
+            $petDto->setDescription($form->get('description')->getData());
+            $petDto->setCreatedBy($form->get('createdBy')->getData());
+            $this->petUseCase->update($id, $petDto);
 
             return $this->redirectToRoute('app_pet_list');
         }

@@ -14,7 +14,8 @@ class PetFormType extends AbstractType
     {
         $builder
             ->add('name', TextType::class)
-            ->add('description', TextType::class);
+            ->add('description', TextType::class)
+            ->add('createdBy', TextType::class);
     }
 
     public function configureOptions(OptionsResolver $resolver)

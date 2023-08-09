@@ -17,7 +17,7 @@ class Pet
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(type: Types::TEXT)]
     private ?string $name = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
@@ -37,17 +37,8 @@ class Pet
     #[ORM\Column(type: 'integer', nullable: true)]
     private int $updatedBy;
 
-    /**
-     * @param string|null $name
-     * @param string|null $description
-     * @param DateTime $createdAt
-     * @param DateTime $updatedAt
-     */
-    public function __construct(?string $name, ?string $description)
-    {
-        $this->name = $name;
-        $this->description = $description;
-    }
+    #[ORM\Column(type: Types::TEXT)]
+    private ?string $ownerName = null;
 
     public function getId(): ?int
     {
@@ -116,5 +107,15 @@ class Pet
     public function setUpdatedBy(int $updatedBy): void
     {
         $this->updatedBy = $updatedBy;
+    }
+
+    public function getOwnerName(): ?string
+    {
+        return $this->ownerName;
+    }
+
+    public function setOwnerName(?string $ownerName): void
+    {
+        $this->ownerName = $ownerName;
     }
 }
