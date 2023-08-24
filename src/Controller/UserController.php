@@ -3,7 +3,6 @@
 namespace App\Controller;
 
 use App\Service\User\UserUseCase;
-use App\Service\User;
 use OpenApi\Annotations as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -19,21 +18,26 @@ class UserController extends AbstractController
     {}
 
      #[Route('/api/user/add',name:'api_user_add', methods:'POST')]
-     /**
-      *     @OA\RequestBody(
-      *         required=true,
-      *         @OA\JsonContent(
-      *             @OA\Property(property="name", type="string"),
-      *             @OA\Property(property="roles", type="string")
-      *         )
-      *     ),
-      *     @OA\Response(
-      *         response=200,
-      *         description="Пользователь создан",
-      *         @OA\JsonContent(ref=@Model(type=\App\Entity\User::class))
-      *     )
-      *
-      */
+//     /**
+//      *     @OA\RequestBody(
+//      *         required=true,
+//      *         @OA\JsonContent(
+//      *             @OA\Property(property="name", type="string"),
+//      *             @OA\Property(property="roles", type="string")
+//      *         )
+//      *     ),
+//      *     @OA\Response(
+//      *         response=201,
+//      *         description="Пользователь создан",
+//      *         @OA\JsonContent(ref=@Model(type=\App\Entity\User::class))
+//      *     ),
+//      *     @OA\Response(
+//      *          response=404,
+//      *          description="Пользователь создан",
+//      *          @OA\JsonContent(ref=@Model(type=\App\Entity\ErrorResponse::class))
+//      *      )
+//      *
+//      */
     public function create(Request $request): JsonResponse
     {
         $name = $request->get('name');

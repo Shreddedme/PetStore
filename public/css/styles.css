@@ -1,0 +1,30 @@
+/* styles.css */
+body {
+    font-family: Arial, sans-serif;
+}
+
+.container {
+    padding: 20px;
+}
+
+.menu-table {
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.menu-table td {
+    padding: 8px;
+    text-align: center;
+    white-space: nowrap; /* Предотвращает перенос слов */
+}
+
+.menu-table a {
+    text-decoration: none;
+    color: #333;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.menu-table a:hover {
+    background-color: #007bff;
+    color: white;
+}

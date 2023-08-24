@@ -1,0 +1,14 @@
+{% extends '../userapi.html.twig' %}
+
+{% block title %}Добавить нового питомца{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <h1 class="text-center my-4">Добавить нового питомца</h1>
+        {{ form_start(form) }}
+        {{ form_row(form.name) }}
+        {{ form_row(form.description) }}
+        <button type="submit" class="btn btn-primary">Сохранить</button>
+        {{ form_end(form) }}
+    </div>
+{% endblock %}

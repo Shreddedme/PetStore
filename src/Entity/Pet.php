@@ -7,8 +7,27 @@ use DateTime;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
+use OpenApi\Annotations as OA;
+use Symfony\Component\Validator\Constraints as Assert;
 
-
+/**
+ * @OA\Schema(
+ *     title="Pet",
+ *     description="Питомец",
+ *     @OA\Property(property="id", type="integer", default=1),
+ *     @OA\Property(property="name", type="string", default="Cat"),
+ *     @OA\Property(property="description", type="string", default="Very lazy"),
+ *     @OA\Property(property="createdAt", type="string", format="date-time"),
+ *     @OA\Property(property="updatedAt", type="string", format="date-time"),
+ *     @OA\Property(property="createdBy", type="integer", default=1),
+ *     @OA\Property(property="updatedBy", type="integer", default=1),
+ *     @OA\Property(
+ *          property="owner",
+ *          type="object",
+ *          @OA\Property(property="name", type="string", default="john"),
+ *      ),
+ * )
+ */
 #[ORM\Entity(repositoryClass: PetRepository::class)]
 class Pet
 {
@@ -18,10 +37,28 @@ class Pet
     private ?int $id = null;
 
     #[ORM\Column(type: Types::TEXT)]
-    private ?string $name = null;
+    #[Assert\NotBlank(message: 'Empty field')]
+    #[Assert\Length(
+        max: 255,
+        maxMessage: 'Field cant be longer than 255'
+    )]
+    #[Assert\Regex(
+        pattern: '/^[a-zA-Z0-9\s]*$/',
+        message: 'Forbidden characters cannot be entered'
+    )]
+    private string $name;
 
-    #[ORM\Column(type: Types::TEXT, nullable: true)]
-    private ?string $description = null;
+    #[ORM\Column(type: Types::TEXT)]
+    #[Assert\NotBlank(message: 'Empty field')]
+    #[Assert\Length(
+        max: 255,
+        maxMessage: 'Field cant be longer than 255'
+    )]
+    #[Assert\Regex(
+        pattern: '/^[a-zA-Z0-9\s]*$/',
+        message: 'Forbidden characters cannot be entered'
+    )]
+    private string $description;
 
     #[ORM\Column(name: 'created_at', type: 'datetime', nullable: false)]
     #[Gedmo\Timestampable(on: 'create')]
@@ -37,15 +74,16 @@ class Pet
     #[ORM\Column(type: 'integer', nullable: true)]
     private int $updatedBy;
 
-    #[ORM\Column(type: Types::TEXT)]
-    private ?string $ownerName = null;
+    #[ORM\ManyToOne(inversedBy: 'pet')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?User $owner = null;
 
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getName(): ?string
+    public function getName(): string
     {
         return $this->name;
     }
@@ -57,7 +95,7 @@ class Pet
         return $this;
     }
 
-    public function getDescription(): ?string
+    public function getDescription(): string
     {
         return $this->description;
     }
@@ -109,13 +147,15 @@ class Pet
         $this->updatedBy = $updatedBy;
     }
 
-    public function getOwnerName(): ?string
+    public function getOwner(): ?User
     {
-        return $this->ownerName;
+        return $this->owner;
     }
 
-    public function setOwnerName(?string $ownerName): void
+    public function setOwner(?User $owner): static
     {
-        $this->ownerName = $ownerName;
+        $this->owner = $owner;
+
+        return $this;
     }
 }

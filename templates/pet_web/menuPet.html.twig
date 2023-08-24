@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css" />
+</head>
+<body>
+<main class="container">
+    <section id="menu">
+        <h2>Меню</h2>
+        <table class="menu-table">
+            <tr>
+                <td><a href="{{ path('app_pet_web') }}">Создать питомца</a></td>
+                <td><a href="{{ path('app_pet_list') }}">Список питомце</a></td>
+                <td><a href="{{ path('app_pet_update', { id: 2 }) }}">Обновить питомца</a></td>
+            </tr>
+        </table>
+    </section>
+</main>
+</body>
+</html>

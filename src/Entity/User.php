@@ -4,8 +4,12 @@ namespace App\Entity;
 
 use App\Repository\UserRepository;
 use DateTime;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
@@ -16,10 +20,10 @@ class User
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(type: Types::TEXT)]
     private ?string $name = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $roles = null;
 
     #[ORM\Column(name: 'created_at', type: 'datetime', nullable: false)]
@@ -34,16 +38,16 @@ class User
     private int $createdBy;
 
     #[ORM\Column(type: 'integer', nullable: true)]
-    private int $updatedBy;
+    private ?int $updatedBy = null;
 
-    /**
-     * @param string|null $name
-     * @param string|null $roles
-     */
+    #[ORM\OneToMany(mappedBy: 'owner', targetEntity: Pet::class)]
+    private Collection $pet;
+
     public function __construct(?string $name, ?string $roles)
     {
         $this->name = $name;
         $this->roles = $roles;
+        $this->pet = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -113,5 +117,35 @@ class User
     public function setUpdatedBy(int $updatedBy): void
     {
         $this->updatedBy = $updatedBy;
+    }
+
+    /**
+     * @return Collection<int, Pet>
+     */
+    public function getPet(): Collection
+    {
+        return $this->pet;
+    }
+
+    public function addPet(Pet $pet): static
+    {
+        if (!$this->pet->contains($pet)) {
+            $this->pet->add($pet);
+            $pet->setOwner($this);
+        }
+
+        return $this;
+    }
+
+    public function removePet(Pet $pet): static
+    {
+        if ($this->pet->removeElement($pet)) {
+            // set the owning side to null (unless already changed)
+            if ($pet->getOwner() === $this) {
+                $pet->setOwner(null);
+            }
+        }
+
+        return $this;
     }
 }

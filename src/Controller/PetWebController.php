@@ -10,7 +10,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-
 class PetWebController extends AbstractController
 {
     public function __construct(
@@ -24,17 +23,14 @@ class PetWebController extends AbstractController
     }
 
     #[Route('/pet/add', name: 'app_pet_web')]
-    public function createFromForm(Request $request): Response
+    public function createFromForm(Request $request, PetDto $petDto): Response
     {
         $form = $this->createForm(PetFormType::class);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $petDto = new PetDto();
-            $petDto->setName($form->get('name')->getData());
-            $petDto->setDescription($form->get('description')->getData());
-            $petDto->setCreatedBy($form->get('createdBy')->getData());
-            $this->petUseCase->create($petDto);
+            $data = $form->getData();
+            $this->petUseCase->create($data);
 
             return $this->redirectToRoute('app_pet_list');
         }
@@ -57,16 +53,12 @@ class PetWebController extends AbstractController
     #[Route('/pet/{id}', name: 'app_pet_update')]
     public function update(Request $request, int $id): Response
     {
-        $pet = $this->petUseCase->find($id);
-        $form = $this->createForm(PetFormType::class, $pet);
+        $form = $this->createForm(PetFormType::class);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $petDto = new PetDto();
-            $petDto->setName($form->get('name')->getData());
-            $petDto->setDescription($form->get('description')->getData());
-            $petDto->setCreatedBy($form->get('createdBy')->getData());
-            $this->petUseCase->update($id, $petDto);
+            $data = $form->getData();
+            $this->petUseCase->update($id, $data);
 
             return $this->redirectToRoute('app_pet_list');
         }
