@@ -10,6 +10,9 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use OpenApi\Annotations as OA;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -27,8 +30,9 @@ use Symfony\Component\Validator\Constraints as Assert;
  * )
  */
 #[ORM\Entity(repositoryClass: UserRepository::class)]
+#[UniqueEntity(fields: ['email'], message: 'There is already an account with this email')]
 #[ORM\Table(name: '`user`')]
-class User
+class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -47,17 +51,17 @@ class User
     )]
     private string $name;
 
-    #[ORM\Column(type: Types::TEXT)]
-    #[Assert\NotBlank(message: 'Empty field')]
-    #[Assert\Length(
-        max: 255,
-        maxMessage: 'Field cant be longer than 255'
-    )]
-    #[Assert\Regex(
-        pattern: '/^[a-zA-Z0-9\s]*$/',
-        message: 'Forbidden characters cannot be entered'
-    )]
-    private string $roles;
+    /**
+     * @var string The hashed password
+     */
+    #[ORM\Column]
+    private string $password;
+
+    #[ORM\Column(length: 180, unique: true)]
+    private string $email;
+
+    #[ORM\Column]
+    private array $roles = [];
 
     #[ORM\Column(name: 'created_at', type: 'datetime', nullable: false)]
     #[Gedmo\Timestampable(on: 'create')]
@@ -98,12 +102,16 @@ class User
         return $this;
     }
 
-    public function getRoles(): ?string
+    public function getRoles(): array
     {
-        return $this->roles;
+        $roles = $this->roles;
+        // guarantee every user at least has ROLE_USER
+        $roles[] = 'ROLE_USER';
+
+        return array_unique($roles);
     }
 
-    public function setRoles(?string $roles): self
+    public function setRoles(array $roles): self
     {
         $this->roles = $roles;
 
@@ -178,5 +186,38 @@ class User
         }
 
         return $this;
+    }
+
+    /**
+     * @see PasswordAuthenticatedUserInterface
+     */
+    public function getPassword(): string
+    {
+        return $this->password;
+    }
+
+    public function setPassword(string $password): void
+    {
+        $this->password = $password;
+    }
+
+    public function getEmail(): string
+    {
+        return $this->email;
+    }
+
+    public function setEmail(string $email): void
+    {
+        $this->email = $email;
+    }
+
+    public function eraseCredentials()
+    {
+        // TODO: Implement eraseCredentials() method.
+    }
+
+    public function getUserIdentifier(): string
+    {
+        return (string) $this->email;
     }
 }

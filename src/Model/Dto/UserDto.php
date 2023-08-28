@@ -23,6 +23,20 @@ class UserDto
         max: 255,
         maxMessage: 'Field cant be longer than 255'
     )]
+    private string $password;
+
+    #[Assert\NotBlank(message: 'Empty field')]
+    #[Assert\Length(
+        max: 255,
+        maxMessage: 'Field cant be longer than 255'
+    )]
+    private string $email;
+
+    #[Assert\NotBlank(message: 'Empty field')]
+    #[Assert\Length(
+        max: 255,
+        maxMessage: 'Field cant be longer than 255'
+    )]
     #[Assert\Regex(
         pattern: '/^[a-zA-Z0-9\s]*$/',
         message: 'Forbidden characters cant be entered'
@@ -47,5 +61,25 @@ class UserDto
     public function setRoles(string $roles): void
     {
         $this->roles = $roles;
+    }
+
+    public function getPassword(): string
+    {
+        return $this->password;
+    }
+
+    public function setPassword(string $password): void
+    {
+        $this->password = $password;
+    }
+
+    public function getEmail(): string
+    {
+        return $this->email;
+    }
+
+    public function setEmail(string $email): void
+    {
+        $this->email = $email;
     }
 }
