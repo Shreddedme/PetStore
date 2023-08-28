@@ -3,11 +3,11 @@
 namespace App\Service\Pet;
 
 use App\Entity\Pet;
+use App\Exception\EntityNotFoundException;
 use App\Model\Dto\PetDto;
 use App\Repository\PetRepository;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Exception;
 
 class PetUseCase
 {
@@ -38,7 +38,7 @@ class PetUseCase
         $pet = $this->petRepository->find($id);
 
         if (!$pet) {
-            throw new Exception('Pet not found');
+            throw new EntityNotFoundException(Pet::class, $id);
         }
 
         return $pet;
@@ -53,14 +53,11 @@ class PetUseCase
     {
         $pet = $this->find($id);
 
-        if (!$pet) {
-            throw new Exception('Pet not found');
-        }
-        $authorizedUserId = 1;
+        $authorizedUserId = 2;
         $user = $this->userRepository->find($authorizedUserId);
 
         if (!$user) {
-            throw new Exception('user not found');
+            throw new EntityNotFoundException('User', $id);
         }
 
         $pet->setName($petDto->getName());
@@ -75,14 +72,14 @@ class PetUseCase
 
     public function delete(int $id): void
     {
-        $pet = $this->find($id);
+        try {
+            $pet = $this->find($id);
 
-        if (!$pet) {
-            throw new Exception('Pet not found');
+            if ($pet) {
+                $this->entityManager->remove($pet);
+                $this->entityManager->flush();
+            }
+        } catch (EntityNotFoundException $e) {
         }
-
-        $this->entityManager->remove($pet);
-        $this->entityManager->flush();
     }
-
 }

@@ -23,7 +23,7 @@ class PetWebController extends AbstractController
     }
 
     #[Route('/pet/add', name: 'app_pet_web')]
-    public function createFromForm(Request $request, PetDto $petDto): Response
+    public function createFromForm(Request $request): Response
     {
         $form = $this->createForm(PetFormType::class);
         $form->handleRequest($request);

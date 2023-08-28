@@ -3,7 +3,7 @@
 namespace App\ParamConverter;
 
 use App\Exception\ValidationException;
-use App\Model\Dto\PetDto;
+use App\Model\Dto\UserDto;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Request\ParamConverter\ParamConverterInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -12,7 +12,7 @@ use Symfony\Component\Serializer\Exception\NotEncodableValueException;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-class PetParamConverter implements ParamConverterInterface
+class UserParamConverter implements ParamConverterInterface
 {
     public function __construct(
         private SerializerInterface $serializer,
@@ -25,7 +25,7 @@ class PetParamConverter implements ParamConverterInterface
         $jsonContent = $request->getContent();
 
         try {
-            $petDto = $this->serializer->deserialize($jsonContent, PetDto::class, 'json');
+            $petDto = $this->serializer->deserialize($jsonContent, UserDto::class, 'json');
 
             $errors = $this->validator->validate($petDto);
 
@@ -44,6 +44,6 @@ class PetParamConverter implements ParamConverterInterface
 
     public function supports(ParamConverter $configuration)
     {
-        return $configuration->getClass() === PetDto::class;
+        return $configuration->getClass() === UserDto::class;
     }
 }

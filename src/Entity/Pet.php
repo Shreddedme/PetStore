@@ -72,11 +72,11 @@ class Pet
     private int $createdBy;
 
     #[ORM\Column(type: 'integer', nullable: true)]
-    private int $updatedBy;
+    private ?int $updatedBy = null;
 
     #[ORM\ManyToOne(inversedBy: 'pet')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?User $owner = null;
+    private User $owner;
 
     public function getId(): ?int
     {
@@ -137,12 +137,12 @@ class Pet
         $this->createdBy = $createdBy;
     }
 
-    public function getUpdatedBy(): int
+    public function getUpdatedBy(): ?int
     {
         return $this->updatedBy;
     }
 
-    public function setUpdatedBy(int $updatedBy): void
+    public function setUpdatedBy(?int $updatedBy): void
     {
         $this->updatedBy = $updatedBy;
     }

@@ -9,8 +9,23 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
+use OpenApi\Annotations as OA;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
+/**
+ * @OA\Schema(
+ *     title="User",
+ *     description="Пользователь",
+ *     @OA\Property(property="id", type="integer", default=1),
+ *     @OA\Property(property="name", type="string", default="John"),
+ *     @OA\Property(property="roles", type="string", default="admin"),
+ *     @OA\Property(property="createdAt", type="string", format="date-time"),
+ *     @OA\Property(property="updatedAt", type="string", format="date-time"),
+ *     @OA\Property(property="createdBy", type="integer", default=1),
+ *     @OA\Property(property="updatedBy", type="integer", default=1),
+ * )
+ */
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
 class User
@@ -21,10 +36,28 @@ class User
     private ?int $id = null;
 
     #[ORM\Column(type: Types::TEXT)]
-    private ?string $name = null;
+    #[Assert\NotBlank(message: 'Empty field')]
+    #[Assert\Length(
+        max: 255,
+        maxMessage: 'Field cant be longer than 255'
+    )]
+    #[Assert\Regex(
+        pattern: '/^[a-zA-Z0-9\s]*$/',
+        message: 'Forbidden characters cannot be entered'
+    )]
+    private string $name;
 
-    #[ORM\Column(type: Types::TEXT, nullable: true)]
-    private ?string $roles = null;
+    #[ORM\Column(type: Types::TEXT)]
+    #[Assert\NotBlank(message: 'Empty field')]
+    #[Assert\Length(
+        max: 255,
+        maxMessage: 'Field cant be longer than 255'
+    )]
+    #[Assert\Regex(
+        pattern: '/^[a-zA-Z0-9\s]*$/',
+        message: 'Forbidden characters cannot be entered'
+    )]
+    private string $roles;
 
     #[ORM\Column(name: 'created_at', type: 'datetime', nullable: false)]
     #[Gedmo\Timestampable(on: 'create')]
@@ -34,8 +67,8 @@ class User
     #[Gedmo\Timestampable(on: 'update')]
     private DateTime $updatedAt;
 
-    #[ORM\Column(type: 'integer', nullable: false)]
-    private int $createdBy;
+    #[ORM\Column(type: 'integer', nullable: true)]
+    private ?int $createdBy = null;
 
     #[ORM\Column(type: 'integer', nullable: true)]
     private ?int $updatedBy = null;
@@ -43,10 +76,8 @@ class User
     #[ORM\OneToMany(mappedBy: 'owner', targetEntity: Pet::class)]
     private Collection $pet;
 
-    public function __construct(?string $name, ?string $roles)
+    public function __construct()
     {
-        $this->name = $name;
-        $this->roles = $roles;
         $this->pet = new ArrayCollection();
     }
 
@@ -99,22 +130,22 @@ class User
         $this->updatedAt = $updatedAt;
     }
 
-    public function getCreatedBy(): int
+    public function getCreatedBy(): ?int
     {
         return $this->createdBy;
     }
 
-    public function setCreatedBy(int $createdBy): void
+    public function setCreatedBy(?int $createdBy): void
     {
         $this->createdBy = $createdBy;
     }
 
-    public function getUpdatedBy(): int
+    public function getUpdatedBy(): ?int
     {
         return $this->updatedBy;
     }
 
-    public function setUpdatedBy(int $updatedBy): void
+    public function setUpdatedBy(?int $updatedBy): void
     {
         $this->updatedBy = $updatedBy;
     }

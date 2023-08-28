@@ -6,19 +6,20 @@ use App\Entity\Pet;
 use App\Model\Dto\PetDto;
 use App\Service\Pet\PetUseCase;
 use OpenApi\Annotations as OA;
+use PHPUnit\TextUI\Exception;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Nelmio\ApiDocBundle\Annotation\Model;
-use Symfony\Component\Serializer\Serializer;
+use Symfony\Component\Serializer\SerializerInterface;
 
 class PetController extends AbstractController
 {
     public function __construct(
         private PetUseCase $petUseCase,
-        private Serializer $serializer,
+        private SerializerInterface $serializer,
     )
     {}
 
@@ -98,14 +99,14 @@ class PetController extends AbstractController
      *           )
      *       ),
      * @OA\Response(
-     *           response=201,
+     *           response=200,
      *           description="Питомец обновлен",
      *           @OA\JsonContent(ref=@Model(type=\App\Entity\Pet::class))
      *       )
      */
     public function update(PetDto $petDto, int $id): JsonResponse
     {
-        $pet =  $this->petUseCase->update($id, $petDto);
+        $pet = $this->petUseCase->update($id, $petDto);
 
         return $this->json($pet);
     }
@@ -113,19 +114,11 @@ class PetController extends AbstractController
     #[Route('/api/pet/{id}', methods: 'DELETE')]
     /**
      * @OA\Tag(name="Pet")
-     * @OA\Response(
-     *     response=204,
-     *     description="Питомец удален",
-     *     @OA\JsonContent(
-     *         type="array",
-     *         @OA\Items(type="object")
-     *     )
-     * )
      */
-    public function delete(int $id): JsonResponse
+    public function delete(int $id): Response
     {
         $this->petUseCase->delete($id);
 
-        return $this->json('pet deleted');
+        return new Response(null, Response::HTTP_NO_CONTENT);
     }
 }

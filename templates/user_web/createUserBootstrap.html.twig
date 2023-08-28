@@ -3,7 +3,6 @@
 <head>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css" />
 </head>
-
 <body>
 <header class="container">
 
@@ -11,25 +10,16 @@
 <main class="container">
     <section id="preview">
         <h2>Создать пользователя</h2>
-        <form id="api-create" action="{{ path('app_user_web') }}" method="POST">
+        <form id="create-user-form" action="{{ path('app_user_web') }}" method="POST">
+            {{ form_start(form) }}
             <div class="grid">
-                <input
-                        type="text"
-                        name="name"
-                        placeholder="Имя пользователя"
-                        aria-label="name"
-                        required
-                />
-                <input
-                        type="text"
-                        name="roles"
-                        placeholder="Полномочие"
-                        aria-label="roles"
-                        required
-                />
+                {{ form_row(form.name) }}
+                {{ form_row(form.roles) }}
                 <button type="submit">Сохранить</button>
             </div>
+            {{ form_end(form) }}
         </form>
     </section>
+</main>
 </body>
 </html>

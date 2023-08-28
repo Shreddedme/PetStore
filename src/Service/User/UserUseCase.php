@@ -3,6 +3,8 @@
 namespace App\Service\User;
 
 use App\Entity\User;
+use App\Exception\EntityNotFoundException;
+use App\Model\Dto\UserDto;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
@@ -15,10 +17,11 @@ class UserUseCase
     )
     {}
 
-    public function create(string $name, string $roles): ?User
+    public function create(UserDto $userDto): User
     {
-        $user = new User($name, $roles);
-        $user->setCreatedBy(1);
+        $user = new User();
+        $user->setName($userDto->getName());
+        $user->setRoles($userDto->getRoles());
 
         $this->entityManager->persist($user);
         $this->entityManager->flush();
@@ -28,7 +31,13 @@ class UserUseCase
 
     public function find(int $id): ?User
     {
-        return $this->userRepository->find($id);
+        $user = $this->userRepository->find($id);
+
+        if (!$user) {
+            throw new EntityNotFoundException(User::class, $id);
+        }
+
+        return $user;
     }
 
     public function findAll(): array
@@ -36,24 +45,12 @@ class UserUseCase
         return $this->userRepository->findAll();
     }
 
-    public function update(
-        int $id,
-        string $name,
-        string $roles,
-//        int $updatetBy
-    ): User
+    public function update(int $id, UserDto $userDto): User
     {
         $user = $this->find($id);
 
-        if (!$user) {
-            throw new Exception('User not found');
-        }
-
-        $updatingBy = 2;
-
-        $user->setName($name);
-        $user->setRoles($roles);
-        $user->setUpdatedBy($updatingBy);
+        $user->setName($userDto->getName());
+        $user->setRoles($userDto->getRoles());
 
         $this->entityManager->persist($user);
         $this->entityManager->flush();
@@ -63,13 +60,14 @@ class UserUseCase
 
     public function delete(int $id): void
     {
-        $user = $this->find($id);
+        try {
+            $user = $this->find($id);
 
-        if (!$user) {
-            throw new Exception('User not found');
+            if ($user) {
+                $this->entityManager->remove($user);
+                $this->entityManager->flush();
+            }
+        } catch (EntityNotFoundException $e) {
         }
-
-        $this->entityManager->remove($user);
-        $this->entityManager->flush();
     }
 }

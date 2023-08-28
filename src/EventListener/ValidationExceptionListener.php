@@ -2,6 +2,7 @@
 
 namespace App\EventListener;
 
+use App\Exception\EntityNotFoundException;
 use App\Exception\ValidationException;
 use App\Model\ErrorHandling\ErrorResponse;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -22,11 +23,17 @@ class ValidationExceptionListener
         $acceptHeader = $event->getRequest()->headers->get('Accept');
         $exception = $event->getThrowable();
 
-        if ($acceptHeader !== self::JSON || !$exception instanceof ValidationException) {
+        if ($acceptHeader !== self::JSON) {
             return;
         }
 
-        $response = new JsonResponse($this->buildData($exception), Response::HTTP_BAD_REQUEST, [], true);
+        if ($exception instanceof ValidationException) {
+            $response = new JsonResponse($this->buildData($exception), Response::HTTP_BAD_REQUEST, [], true);
+        } elseif ($exception instanceof EntityNotFoundException) {
+            $response = new JsonResponse(['message' => $exception->getMessage()], Response::HTTP_NOT_FOUND, [], true);
+        } else {
+           return;
+        }
 
         $event->stopPropagation();
         $event->setResponse($response);

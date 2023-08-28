@@ -7,7 +7,7 @@
 <body>
 <main class="container">
     <section id="menu">
-        <h2>Меню</h2>
+        <h2 class="menu">Меню</h2>
         <table class="menu-table">
             <tr>
                 <td><a href="{{ path('app_pet_web') }}">Создать питомца</a></td>
@@ -18,4 +18,17 @@
     </section>
 </main>
 </body>
+
+<style>
+    .menu {
+        display: flex;
+        justify-content: center;
+        margin-right: 210px;
+    }
+    
+    td {
+        border-bottom: unset;
+    }
+
+</style>
 </html>
