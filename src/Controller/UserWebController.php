@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Exception\EntityNotFoundException;
 use App\Model\UserForm\UserFormType;
 use App\Service\User\UserUseCase;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -16,6 +17,11 @@ class UserWebController extends AbstractController
     )
     {}
 
+    #[Route('/user/menu', name: 'app_user_menu')]
+    public function main(): Response
+    {
+        return $this->render('user_web/userMenu.html.twig');
+    }
     #[Route('/user/add', name: 'app_user_web')]
     public function createFromForm(Request $request): Response
     {
@@ -44,6 +50,9 @@ class UserWebController extends AbstractController
         ]);
     }
 
+    /**
+     * @throws EntityNotFoundException
+     */
     #[Route('/user/{id}', name: 'app_user_update')]
     public function update(Request $request, int $id): Response
     {

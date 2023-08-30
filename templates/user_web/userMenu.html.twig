@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css" />
+</head>
+<body>
+<main class="container">
+    <section id="menu">
+        <h2 class="menu">Меню</h2>
+        <table class="menu-table">
+        </table>
+    </section>
+
+    <section id="login-register" style="display: flex; justify-content: center; margin-top: -110px; margin-right: 210px;">
+        {% if not app.user %}
+            <div class="login-register-links">
+                <a href="{{ path('app_login') }}">Войти</a>
+                <span>/</span>
+                <a href="{{ path('app_register') }}">Зарегистрироваться</a>
+            </div>
+        {% elseif app.user %}
+            <div class="login-register-links">
+                <a href="{{ path('app_register') }}">Зарегистрировать нового пользователя</a>
+            </div>
+        {% endif %}
+    </section>
+</main>
+</body>
+
+<style>
+    .menu {
+        display: flex;
+        justify-content: center;
+        margin-right: 210px;
+    }
+
+    td {
+        border-bottom: unset;
+    }
+</style>
+</html>

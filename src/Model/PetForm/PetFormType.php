@@ -15,8 +15,7 @@ use Symfony\Component\Form\Extension\Core\Type\IntegerType;
         {
             $builder
                 ->add('name', TextType::class)
-                ->add('description', TextType::class)
-                ->add('createdBy', IntegerType::class);
+                ->add('description', TextType::class);
         }
 
         public function configureOptions(OptionsResolver $resolver)

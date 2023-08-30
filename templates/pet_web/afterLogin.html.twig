@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css" />
+    <style>
+        .links-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .links-container a {
+            font-size: 28px;
+        }
+    </style>
+</head>
+<main class="container">
+    <section id="links" class="links-container">
+        <a href="{{ path('app_pet_web') }}">Создать питомца</a>
+        <a href="{{ path('app_pet_list') }}">Посмотреть список всех питомцев</a>
+    </section>
+
+    <section id="tables">
+        <figure>
+            <table role="grid">
+                <thead>
+                </thead>
+            </table>
+        </figure>
+    </section>
+</main>
+</html>

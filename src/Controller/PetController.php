@@ -6,7 +6,6 @@ use App\Entity\Pet;
 use App\Model\Dto\PetDto;
 use App\Service\Pet\PetUseCase;
 use OpenApi\Annotations as OA;
-use PHPUnit\TextUI\Exception;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;

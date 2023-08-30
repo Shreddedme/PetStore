@@ -7,7 +7,6 @@ use App\Exception\EntityNotFoundException;
 use App\Model\Dto\UserDto;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Exception;
 
 class UserUseCase
 {
@@ -21,6 +20,8 @@ class UserUseCase
     {
         $user = new User();
         $user->setName($userDto->getName());
+        $user->setEmail($userDto->getEmail());
+        $user->setPassword($userDto->getPassword());
         $user->setRoles($userDto->getRoles());
 
         $this->entityManager->persist($user);
@@ -29,7 +30,10 @@ class UserUseCase
         return $user;
     }
 
-    public function find(int $id): ?User
+    /**
+     * @throws EntityNotFoundException
+     */
+    public function find(int $id): User
     {
         $user = $this->userRepository->find($id);
 
@@ -45,6 +49,9 @@ class UserUseCase
         return $this->userRepository->findAll();
     }
 
+    /**
+     * @throws EntityNotFoundException
+     */
     public function update(int $id, UserDto $userDto): User
     {
         $user = $this->find($id);
@@ -62,12 +69,12 @@ class UserUseCase
     {
         try {
             $user = $this->find($id);
-
-            if ($user) {
-                $this->entityManager->remove($user);
-                $this->entityManager->flush();
-            }
         } catch (EntityNotFoundException $e) {
+        }
+
+        if (isset($user) && $user instanceof User) {
+            $this->entityManager->remove($user);
+            $this->entityManager->flush();
         }
     }
 }

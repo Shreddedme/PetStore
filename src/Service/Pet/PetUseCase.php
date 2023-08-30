@@ -3,11 +3,13 @@
 namespace App\Service\Pet;
 
 use App\Entity\Pet;
+use App\Entity\User;
 use App\Exception\EntityNotFoundException;
 use App\Model\Dto\PetDto;
 use App\Repository\PetRepository;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bundle\SecurityBundle\Security;
 
 class PetUseCase
 {
@@ -15,25 +17,37 @@ class PetUseCase
         private EntityManagerInterface $entityManager,
         private PetRepository $petRepository,
         private UserRepository $userRepository,
+        private Security $security,
     )
     {}
 
     public function create(PetDto $petDto): Pet
     {
-        $user = $this->userRepository->find($petDto->getCreatedBy());
-        $pet = new Pet();
-        $pet->setName($petDto->getName());
-        $pet->setDescription($petDto->getDescription());
-        $pet->setCreatedBy($user->getId());
-        $pet->setOwner($user);
+        $currentUser = $this->security->getUser();
 
-        $this->entityManager->persist($pet);
-        $this->entityManager->flush();
+        if ($currentUser instanceof User) {
+            $user = $this->userRepository->find($currentUser->getId());
 
-        return $pet;
+            $pet = new Pet();
+            $pet->setName($petDto->getName());
+            $pet->setDescription($petDto->getDescription());
+            $pet->setCreatedBy($user->getId());
+            $pet->setOwner($user);
+
+            $this->entityManager->persist($pet);
+            $this->entityManager->flush();
+
+            return $pet;
+        }
+
+        throw new \LogicException('Current user is not authenticated');
     }
 
-    public function find(int $id): ?Pet
+
+    /**
+     * @throws EntityNotFoundException
+     */
+    public function find(int $id): Pet
     {
         $pet = $this->petRepository->find($id);
 
@@ -49,37 +63,48 @@ class PetUseCase
         return $this->petRepository->findAll();
     }
 
+    /**
+     * @throws EntityNotFoundException
+     */
     public function update(int $id, PetDto $petDto): Pet
     {
         $pet = $this->find($id);
 
-        $authorizedUserId = 2;
-        $user = $this->userRepository->find($authorizedUserId);
+        $currentUser = $this->security->getUser();
 
-        if (!$user) {
-            throw new EntityNotFoundException('User', $id);
+        if ($currentUser instanceof User) {
+            $userId = $this->userRepository->find($currentUser->getId());
+
+            $user = $this->userRepository->find($userId);
+
+            if (!$user) {
+                throw new EntityNotFoundException(User::class, $id);
+            }
+
+            $pet->setName($petDto->getName());
+            $pet->setDescription($petDto->getDescription());
+            $pet->setUpdatedBy($user->getId());
+
+            $this->entityManager->persist($pet);
+            $this->entityManager->flush();
+
+            return $pet;
         }
 
-        $pet->setName($petDto->getName());
-        $pet->setDescription($petDto->getDescription());
-        $pet->setUpdatedBy($user->getId());
+        throw new \LogicException('Current user is not authenticated');
 
-        $this->entityManager->persist($pet);
-        $this->entityManager->flush();
-
-        return $pet;
     }
 
     public function delete(int $id): void
     {
         try {
             $pet = $this->find($id);
-
-            if ($pet) {
-                $this->entityManager->remove($pet);
-                $this->entityManager->flush();
-            }
         } catch (EntityNotFoundException $e) {
+        }
+
+        if (isset($pet) && $pet instanceof Pet) {
+            $this->entityManager->remove($pet);
+            $this->entityManager->flush();
         }
     }
 }

@@ -39,8 +39,6 @@ class PetDto
     )]
     private string $description;
 
-    private int $createdBy;
-
     public function getName(): string
     {
         return $this->name;
@@ -59,15 +57,5 @@ class PetDto
     public function setDescription(string $description): void
     {
         $this->description = $description;
-    }
-
-    public function getCreatedBy(): int
-    {
-        return $this->createdBy;
-    }
-
-    public function setCreatedBy(int $createdBy): void
-    {
-        $this->createdBy = $createdBy;
     }
 }

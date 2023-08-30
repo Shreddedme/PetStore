@@ -1,19 +1,48 @@
 <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Register • Your App</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css" />
+</head>
+<body>
+<main class="container">
+    <section id="register-form">
+        <h1>Register</h1>
 
-<title>Register</title>
+        {{ form_errors(registrationForm) }}
 
-{% block body %}
-    <h1>Register</h1>
-
-    {{ form_errors(registrationForm) }}
-
-    {{ form_start(registrationForm) }}
+        {{ form_start(registrationForm) }}
+        {{ form_row(registrationForm.name) }}
         {{ form_row(registrationForm.email) }}
-        {{ form_row(registrationForm.plainPassword, {
+        {{ form_row(registrationForm.roles, {
+            label: 'Roles',
+            attr: {
+                multiple: 'multiple'
+            }
+        }) }}        {{ form_row(registrationForm.plainPassword, {
             label: 'Password'
         }) }}
-        {{ form_row(registrationForm.agreeTerms) }}
+        <div style="display: flex; align-items: center;">
+            <label for="{{ registrationForm.agreeTerms.vars.id }}">
+                Agree to terms
+            </label>
+            <span style="margin-right: 10px;"></span>
+            {{ form_widget(registrationForm.agreeTerms) }}
+        </div>
 
         <button type="submit" class="btn">Register</button>
-    {{ form_end(registrationForm) }}
-{% endblock %}
+        {{ form_end(registrationForm) }}
+
+        <div class="mb-3" style="text-align: right; margin-right: 20px;">
+            {% if not app.user %}
+                <a href="{{ path('app_login') }}" style="font-size: 1.2rem;">Log in</a>
+            {% else %}
+                You are already logged in as {{ app.user.userIdentifier }}, <a href="{{ path('app_logout') }}">Logout</a>
+            {% endif %}
+        </div>
+    </section>
+</main>
+</body>
+</html>

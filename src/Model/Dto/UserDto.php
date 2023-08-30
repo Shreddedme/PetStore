@@ -32,16 +32,14 @@ class UserDto
     )]
     private string $email;
 
+
     #[Assert\NotBlank(message: 'Empty field')]
-    #[Assert\Length(
-        max: 255,
-        maxMessage: 'Field cant be longer than 255'
+    #[Assert\Choice(
+        choices: ["ROLE_USER", "ROLE_ADMIN"],
+        multiple: true,
+        message: "Invalid role provided."
     )]
-    #[Assert\Regex(
-        pattern: '/^[a-zA-Z0-9\s]*$/',
-        message: 'Forbidden characters cant be entered'
-    )]
-    private string $roles;
+    private array $roles;
 
     public function getName(): string
     {
@@ -53,12 +51,12 @@ class UserDto
         $this->name = $name;
     }
 
-    public function getRoles(): string
+    public function getRoles(): array
     {
         return $this->roles;
     }
 
-    public function setRoles(string $roles): void
+    public function setRoles(array $roles): void
     {
         $this->roles = $roles;
     }

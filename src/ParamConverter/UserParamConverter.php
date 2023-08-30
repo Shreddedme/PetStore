@@ -20,6 +20,9 @@ class UserParamConverter implements ParamConverterInterface
     )
     {}
 
+    /**
+     * @throws ValidationException
+     */
     public function apply(Request $request, ParamConverter $configuration)
     {
         $jsonContent = $request->getContent();
@@ -27,15 +30,15 @@ class UserParamConverter implements ParamConverterInterface
         try {
             $petDto = $this->serializer->deserialize($jsonContent, UserDto::class, 'json');
 
-            $errors = $this->validator->validate($petDto);
-
-            if (count($errors) > 0) {
-                throw new ValidationException($errors);
-            }
         } catch (NotEncodableValueException $e) {
             throw new BadRequestHttpException('Invalid format', $e);
         }
 
+        $errors = $this->validator->validate($petDto);
+
+        if (count($errors) > 0) {
+            throw new ValidationException($errors);
+        }
 
         $request->attributes->set($configuration->getName(), $petDto);
 
