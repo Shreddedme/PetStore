@@ -12,30 +12,10 @@
             <tr>
                 <td><a href="{{ path('app_pet_web') }}">Создать питомца</a></td>
                 <td><a href="{{ path('app_pet_list') }}">Список питомцев</a></td>
-                <td>
-                    <a href="#" id="update-link">Обновить питомца</a>
-                    &nbsp;&nbsp;
-                    <input id="id-input" type="number" placeholder="ID" style="width: 100px;" required>
-                </td>
             </tr>
         </table>
     </section>
 </main>
-
-<script>
-    const idInput = document.getElementById('id-input');
-    const updateLink = document.getElementById('update-link');
-
-    updateLink.addEventListener('click', (event) => {
-        event.preventDefault();
-        const id = idInput.value;
-        if (id) {
-            const url = `http://127.0.0.1:8000/pet/${id}`;
-            window.location.href = url;
-        }
-    });
-</script>
-
 </body>
 
 <style>

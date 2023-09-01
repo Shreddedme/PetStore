@@ -21,7 +21,13 @@ services:
         tags:
             - { name: request.param_converter, converter: user_param_converter }
 
-#    Symfony\Component\Serializer\Normalizer\DateTimeNormalizer: ~
+    services:
+        class: App\ParamConverter\PetSearchParamConverter
+        tags:
+            -  { name: request.param_converter, converter: pet_search_param_converter, priority: 1 }
+
+
+    #    Symfony\Component\Serializer\Normalizer\DateTimeNormalizer: ~
 #
 #    App\Normalizer\PetNormalizer:
 #        class: App\Normalizer\PetNormalizer

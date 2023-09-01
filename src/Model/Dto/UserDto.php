@@ -2,7 +2,7 @@
 
 namespace App\Model\Dto;
 
-use App\Entity\User;
+use OpenApi\Annotations as OA;
 use Symfony\Component\Validator\Constraints as Assert;
 
 class UserDto
@@ -39,6 +39,12 @@ class UserDto
         multiple: true,
         message: "Invalid role provided."
     )]
+    /**
+     * @OA\Property(
+     *     type="array",
+     *     @OA\Items(type="string")
+     * )
+     */
     private array $roles;
 
     public function getName(): string

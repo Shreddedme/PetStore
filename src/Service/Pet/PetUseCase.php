@@ -6,9 +6,11 @@ use App\Entity\Pet;
 use App\Entity\User;
 use App\Exception\EntityNotFoundException;
 use App\Model\Dto\PetDto;
+use App\Model\Dto\PetSearchDto;
 use App\Repository\PetRepository;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\Tools\Pagination\Paginator;
 use Symfony\Bundle\SecurityBundle\Security;
 
 class PetUseCase
@@ -43,7 +45,6 @@ class PetUseCase
         throw new \LogicException('Current user is not authenticated');
     }
 
-
     /**
      * @throws EntityNotFoundException
      */
@@ -61,6 +62,11 @@ class PetUseCase
     public function findAll(): array
     {
         return $this->petRepository->findAll();
+    }
+
+    public function findByFilter(PetSearchDto $petSearchDto, $page): Paginator
+    {
+        return $this->petRepository->findByFilter($petSearchDto, $page);
     }
 
     /**

@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Pet;
 use App\Model\Dto\PetDto;
+use App\Model\Dto\PetSearchDto;
 use App\Service\Pet\PetUseCase;
 use OpenApi\Annotations as OA;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
@@ -69,6 +70,44 @@ class PetController extends AbstractController
         return $this->json($pet);
     }
 
+    /**
+     * @ParamConverter("petSearchDto", class=PetSearchDto::class, converter="pet_search_param_converter")
+     * @OA\Tag(name="Pet")
+     * @OA\RequestBody(
+     *      required=true,
+     *      description="Filter parameters",
+     *      @OA\MediaType(
+     *          mediaType="application/json",
+     *          @OA\Schema(
+     *              @OA\Property(property="name", type="string", default="cat"),
+     *              @OA\Property(property="description", type="string", default="small"),
+     *              @OA\Property(property="owner", type="string", default="John"),
+     *              @OA\Property(property="page", type="integer", default=1)
+     *          )
+     *      )
+     *  )
+     * @OA\Response(
+     *      response=200,
+     *      description="Список питомцев",
+     *      @OA\JsonContent(
+     *          type="array",
+     *          @OA\Items(ref=@Model(type=\App\Model\Dto\PetSearchDto::class)),
+     *      )
+     *  )
+     * @OA\Response(
+     *      response=400,
+     *      description="Неверные данные",
+     *      @OA\JsonContent(ref=@Model(type=\App\Model\ErrorHandling\ErrorResponse::class))
+     *  )
+     * @param PetSearchDto $petSearchDto
+     * @return JsonResponse
+     */
+    #[Route('/api/pets', methods: ['PUT'])]
+    public function getByFilters(PetSearchDto $petSearchDto): JsonResponse
+    {
+       return $this->json($this->petUseCase->findByFilter($petSearchDto, $petSearchDto->getPage()));
+    }
+
     #[Route('/api/pet', methods: 'GET')]
     /**
      * @OA\Tag(name="Pet")
@@ -86,6 +125,7 @@ class PetController extends AbstractController
 
         return new JsonResponse($petsJson, 200, [], true);
     }
+
     #[Route('/api/pet/{id}', name: 'update_method', methods: 'PUT')]
     /**
      * @ParamConverter("petDto", class=PetDto::class, converter="pet_param_converter")
