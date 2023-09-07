@@ -4,9 +4,11 @@ namespace App\Repository;
 
 use App\Entity\Pet;
 use App\Model\Dto\PetSearchDto;
+use App\Model\Dto\PetSortDto;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\Tools\Pagination\Paginator;
 use Doctrine\Persistence\ManagerRegistry;
+use function Doctrine\ORM\QueryBuilder;
 
 /**
  * @extends ServiceEntityRepository<Pet>
@@ -27,9 +29,9 @@ class PetRepository extends ServiceEntityRepository
      * @param PetSearchDto $petSearchDto
      * @return Paginator
      */
-    public function findByFilter(PetSearchDto $petSearchDto, int $page, int $count = 10): Paginator
+    public function findByFilter(PetSearchDto $petSearchDto, int $count = 10): Paginator
     {
-        $page = $page ?? 1;
+        $page = $petSearchDto->getPage() ?? 1;
         $queryBuilder = $this->createQueryBuilder('p')
             ->select('p')
             ->leftJoin('p.owner', 'o')
@@ -37,7 +39,7 @@ class PetRepository extends ServiceEntityRepository
 
         if ($petSearchDto->getName() !== null) {
             $queryBuilder
-                ->andWhere('p.name LIKE LOWER(:name)')
+                ->andWhere('LOWER(p.name) LIKE LOWER(:name)')
                 ->setParameter('name', '%' . $petSearchDto->getName() . '%');
         }
 
@@ -49,7 +51,7 @@ class PetRepository extends ServiceEntityRepository
 
         if ($petSearchDto->getDescription() !== null) {
             $queryBuilder
-                ->andWhere('p.description LIKE LOWER(:description)')
+                ->andWhere('LOWER(p.description) LIKE LOWER(:description)')
                 ->setParameter('description', '%' . $petSearchDto->getDescription() . '%');
         }
 
@@ -61,5 +63,13 @@ class PetRepository extends ServiceEntityRepository
             ->setMaxResults($count);
 
         return new Paginator($query, true);
+    }
+
+    public function findAllSorted(PetSortDto $petSortDto): array
+    {
+        $qb = $this->createQueryBuilder('p')
+            ->orderBy('p.' . $petSortDto->getSortBy(), $petSortDto->getSortDirection());
+
+        return $qb->getQuery()->getResult();
     }
 }

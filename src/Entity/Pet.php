@@ -74,7 +74,7 @@ class Pet
     #[ORM\Column(type: 'integer', nullable: true)]
     private ?int $updatedBy = null;
 
-    #[ORM\ManyToOne(inversedBy: 'pet')]
+    #[ORM\ManyToOne(inversedBy: 'pet', fetch: 'EAGER' )]
     #[ORM\JoinColumn(nullable: false)]
     private User $owner;
 

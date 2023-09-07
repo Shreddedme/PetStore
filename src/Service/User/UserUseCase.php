@@ -10,6 +10,8 @@ use Doctrine\ORM\EntityManagerInterface;
 
 class UserUseCase
 {
+    public const EXPIREDTIME = 3600;
+
     public function __construct(
         private EntityManagerInterface $entityManager,
         private UserRepository $userRepository,

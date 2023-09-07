@@ -3,10 +3,12 @@
 namespace App\Controller;
 
 use App\Entity\Pet;
+use App\Exception\EntityNotFoundException;
 use App\Model\Dto\PetDto;
 use App\Model\Dto\PetSearchDto;
 use App\Service\Pet\PetUseCase;
 use OpenApi\Annotations as OA;
+use Psr\Cache\InvalidArgumentException;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -14,12 +16,15 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Contracts\Cache\CacheInterface;
+use Symfony\Contracts\Cache\ItemInterface;
 
 class PetController extends AbstractController
 {
     public function __construct(
         private PetUseCase $petUseCase,
         private SerializerInterface $serializer,
+        private CacheInterface $cache,
     )
     {}
 
@@ -71,7 +76,7 @@ class PetController extends AbstractController
     }
 
     /**
-     * @ParamConverter("petSearchDto", class=PetSearchDto::class, converter="pet_search_param_converter")
+     * @ParamConverter("petSearchDto", class=PetSearchDto::class, converter="pet_combined_param_converter")
      * @OA\Tag(name="Pet")
      * @OA\RequestBody(
      *      required=true,
@@ -105,7 +110,7 @@ class PetController extends AbstractController
     #[Route('/api/pets', methods: ['PUT'])]
     public function getByFilters(PetSearchDto $petSearchDto): JsonResponse
     {
-       return $this->json($this->petUseCase->findByFilter($petSearchDto, $petSearchDto->getPage()));
+       return $this->json($this->petUseCase->findByFilter($petSearchDto));
     }
 
     #[Route('/api/pet', methods: 'GET')]
@@ -116,15 +121,24 @@ class PetController extends AbstractController
      *           description="Список питомцев",
      *           @OA\JsonContent(ref=@Model(type=\App\Entity\Pet::class))
      *       )
+     * @throws InvalidArgumentException
      */
     public function getList(): JsonResponse
     {
-        $pets = $this->petUseCase->findAll();
+        $cacheKey = 'pet_list_cache';
 
-        $petsJson = $this->serializer->serialize($pets, 'json');
+        $cachedData = $this->cache->get($cacheKey, function (ItemInterface $item) {
+//            $item->tag('pet');
+            $item->expiresAfter(3600);
+            $pets = $this->petUseCase->findAll();
 
-        return new JsonResponse($petsJson, 200, [], true);
+            return $this->serializer->serialize($pets, 'json');
+        });
+
+        return new JsonResponse($cachedData, 200, [], true);
     }
+
+
 
     #[Route('/api/pet/{id}', name: 'update_method', methods: 'PUT')]
     /**
@@ -142,6 +156,7 @@ class PetController extends AbstractController
      *           description="Питомец обновлен",
      *           @OA\JsonContent(ref=@Model(type=\App\Entity\Pet::class))
      *       )
+     * @throws EntityNotFoundException
      */
     public function update(PetDto $petDto, int $id): JsonResponse
     {
@@ -150,7 +165,7 @@ class PetController extends AbstractController
         return $this->json($pet);
     }
 
-    #[Route('/api/pet/{id}', methods: 'DELETE')]
+    #[Route('/api/pet/{id}', name:'api_delete',  methods: 'DELETE')]
     /**
      * @OA\Tag(name="Pet")
      */

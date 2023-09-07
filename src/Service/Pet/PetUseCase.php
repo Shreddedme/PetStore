@@ -7,19 +7,26 @@ use App\Entity\User;
 use App\Exception\EntityNotFoundException;
 use App\Model\Dto\PetDto;
 use App\Model\Dto\PetSearchDto;
+use App\Model\Dto\PetSortDto;
 use App\Repository\PetRepository;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Tools\Pagination\Paginator;
+use Psr\Cache\InvalidArgumentException;
 use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Contracts\Cache\CacheInterface;
+use Symfony\Contracts\Cache\ItemInterface;
 
 class PetUseCase
 {
+    public const EXPIREDTIME = 1;
+
     public function __construct(
         private EntityManagerInterface $entityManager,
         private PetRepository $petRepository,
         private UserRepository $userRepository,
         private Security $security,
+        private CacheInterface $cache,
     )
     {}
 
@@ -64,9 +71,23 @@ class PetUseCase
         return $this->petRepository->findAll();
     }
 
-    public function findByFilter(PetSearchDto $petSearchDto, $page): Paginator
+    /**
+     * @throws InvalidArgumentException
+     */
+    public function findAllSorted(PetSortDto $petSortDto): array
     {
-        return $this->petRepository->findByFilter($petSearchDto, $page);
+        $cacheKey = 'search_pet_list_cache';
+
+        return $this->cache->get($cacheKey, function (ItemInterface $item) use ($petSortDto) {
+            $item->expiresAfter(self::EXPIREDTIME);
+
+            return $this->petRepository->findAllSorted($petSortDto);
+        });
+    }
+
+    public function findByFilter(PetSearchDto $petSearchDto): Paginator
+    {
+        return $this->petRepository->findByFilter($petSearchDto);
     }
 
     /**

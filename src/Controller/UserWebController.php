@@ -5,15 +5,19 @@ namespace App\Controller;
 use App\Exception\EntityNotFoundException;
 use App\Model\UserForm\UserFormType;
 use App\Service\User\UserUseCase;
+use Psr\Cache\InvalidArgumentException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Contracts\Cache\CacheInterface;
+use Symfony\Contracts\Cache\ItemInterface;
 
 class UserWebController extends AbstractController
 {
     public function __construct(
         private UserUseCase $userUseCase,
+        private CacheInterface $cache,
     )
     {}
 
@@ -40,13 +44,22 @@ class UserWebController extends AbstractController
         ]);
     }
 
+    /**
+     * @throws InvalidArgumentException
+     */
     #[Route('/user', name: 'app_user_list')]
     public function getList(): Response
     {
-        $users = $this->userUseCase->findAll();
+        $cacheKey = 'search_user_list_cache';
+
+        $cachedUsers = $this->cache->get($cacheKey, function (ItemInterface $item) {
+            $item->expiresAfter(3600);
+
+            return $this->userUseCase->findAll();
+        });
 
         return $this->render('user_web/getListUserBootstrap.html.twig', [
-            'users' => $users,
+            'users' => $cachedUsers,
         ]);
     }
 

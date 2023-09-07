@@ -11,10 +11,10 @@
             <table role="grid">
                 <thead>
                 <tr>
-                    <th>ID</th>
-                    <th>Имя</th>
-                    <th>Описание</th>
-                    <th>Владелец</th>
+                    <th><a href="{{ path('app_pet_list', {'sort_by': 'id', 'sort_direction': (sortBy == 'id' and sortDirection == 'asc') ? 'desc' : 'asc'}) }}">ID</a></th>
+                    <th><a href="{{ path('app_pet_list', {'sort_by': 'name', 'sort_direction': (sortBy == 'name' and sortDirection == 'asc') ? 'desc' : 'asc'}) }}">Имя</a></th>
+                    <th><a href="{{ path('app_pet_list', {'sort_by': 'description', 'sort_direction': (sortBy == 'description' and sortDirection == 'asc') ? 'desc' : 'asc'}) }}">Описание</a></th>
+                    <th><a href="{{ path('app_pet_list', {'sort_by': 'owner', 'sort_direction': (sortBy == 'owner' and sortDirection == 'asc') ? 'desc' : 'asc'}) }}">Владелец</a></th>
                     <th>Действия</th>
                 </tr>
                 </thead>
