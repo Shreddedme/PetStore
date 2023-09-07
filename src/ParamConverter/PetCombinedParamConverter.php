@@ -4,6 +4,7 @@ namespace App\ParamConverter;
 
 use App\Exception\ValidationException;
 use App\Model\Dto\PetSearchDto;
+use App\Model\Dto\PetSortDto;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Request\ParamConverter\ParamConverterInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -12,7 +13,7 @@ use Symfony\Component\Serializer\Exception\NotEncodableValueException;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-class PetSearchParamConverter implements ParamConverterInterface
+class PetCombinedParamConverter implements ParamConverterInterface
 {
     public function __construct(
         private SerializerInterface $serializer,
@@ -25,12 +26,22 @@ class PetSearchParamConverter implements ParamConverterInterface
      */
     public function apply(Request $request, ParamConverter $configuration)
     {
-        $jsonContent = $request->getContent();
+        $petDto = null;
 
-        try {
-            $petDto = $this->serializer->deserialize($jsonContent, PetSearchDto::class, 'json');
-        } catch (NotEncodableValueException $e) {
+        if ($configuration->getClass() === PetSortDto::class) {
+            try {
+                $parameters = $request->query->all();
+                $petDto = $this->serializer->denormalize($parameters, PetSortDto::class);
+            } catch (NotEncodableValueException $e) {
                 throw new BadRequestHttpException('Invalid format', $e);
+            }
+        } elseif ($configuration->getClass() === PetSearchDto::class) {
+            try {
+                $jsonContent = $request->getContent();
+                $petDto = $this->serializer->deserialize($jsonContent, PetSearchDto::class, 'json');
+            } catch (NotEncodableValueException $e) {
+                throw new BadRequestHttpException('Invalid format', $e);
+            }
         }
 
         $errors = $this->validator->validate($petDto);
@@ -46,6 +57,6 @@ class PetSearchParamConverter implements ParamConverterInterface
 
     public function supports(ParamConverter $configuration)
     {
-        return $configuration->getClass() === PetSearchDto::class;
+        return in_array($configuration->getClass(), [PetSortDto::class, PetSearchDto::class]);
     }
 }
