@@ -46,6 +46,6 @@ class PetCombinedParamConverter implements ParamConverterInterface
 
     public function supports(ParamConverter $configuration)
     {
-        return in_array($configuration->getClass(), [PetSortDto::class, PetCombinedDto::class]);
+        return $configuration->getClass() === PetCombinedDto::class;
     }
 }
