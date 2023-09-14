@@ -8,39 +8,37 @@
 <main class="container">
     <section id="search-form">
         <h1 class="mt-5">Pet Search</h1>
-        {{ form_start(form, {'attr': {'method': 'get'}}) }}
-
+        {{ form_start(form, {'action': path('app_pet_search'), 'method': 'GET', 'attr': {'onload': 'this.submit();'}}) }}
         <div class="mb-3">
-            {{ form_label(form.name, 'Enter filter by Name:', {'label_attr': {'class': 'form-label'}}) }}
-            {{ form_widget(form.name, {'attr': {'class': 'form-control'}, 'value': petSearchDto.name ?? null}) }}
+            <label for="name" class="form-label">Enter filter by Name:</label>
+            <input type="text" id="name" name="name" class="form-control" value="{{ app.request.query.get('name') ?? '' }}">
         </div>
 
         <div class="mb-3">
-            {{ form_label(form.description, 'Enter filter by Description:', {'label_attr': {'class': 'form-label'}}) }}
-            {{ form_widget(form.description, {'attr': {'class': 'form-control'}, 'value': petSearchDto.description ?? null}) }}
+            <label for="description" class="form-label">Enter filter by Description:</label>
+            <input type="text" id="description" name="description" class="form-control" value="{{ app.request.query.get('description') ?? '' }}">
         </div>
 
         <div class="mb-3">
-            {{ form_label(form.owner, 'Enter filter by Owner:', {'label_attr': {'class': 'form-label'}}) }}
-            {{ form_widget(form.owner, {'attr': {'class': 'form-control'}, 'value': petSearchDto.owner ?? null}) }}
+            <label for="owner" class="form-label">Enter filter by Owner:</label>
+            <input type="text" id="owner" name="owner" class="form-control" value="{{ app.request.query.get('owner') ?? '' }}">
         </div>
+
 
         <button type="submit" class="btn btn-primary">Search</button>
-
         {{ form_end(form) }}
     </section>
 
     <hr>
     <section id="search-results">
         <h2 class="mt-5">Search Results</h2>
-
         <table class="table">
             <thead>
             <tr>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Description</th>
-                <th>Owner</th>
+                <th><a href="{{ path('app_pet_search', {'sort_by': 'id', 'sort_direction': (petCombinedDto.getSortBy() == 'id' and petCombinedDto.getSortDirection() != 'desc') ? 'desc' : 'asc', 'name': app.request.query.get('name'), 'description': app.request.query.get('description'), 'owner': app.request.query.get('owner')}) }}">ID</a></th>
+                <th><a href="{{ path('app_pet_search', {'sort_by': 'name', 'sort_direction': (petCombinedDto.getSortBy() == 'name' and petCombinedDto.getSortDirection() != 'desc') ? 'desc' : 'asc', 'name': app.request.query.get('name'), 'description': app.request.query.get('description'), 'owner': app.request.query.get('owner')}) }}">Name</a></th>
+                <th><a href="{{ path('app_pet_search', {'sort_by': 'description', 'sort_direction': (petCombinedDto.getSortBy() == 'description' and petCombinedDto.getSortDirection() != 'desc') ? 'desc' : 'asc', 'name': app.request.query.get('name'), 'description': app.request.query.get('description'), 'owner': app.request.query.get('owner')}) }}">Description</a></th>
+                <th><a href="{{ path('app_pet_search', {'sort_by': 'owner', 'sort_direction': (petCombinedDto.getSortBy() == 'owner' and petCombinedDto.getSortDirection() != 'desc') ? 'desc' : 'asc', 'name': app.request.query.get('name'), 'description': app.request.query.get('description'), 'owner': app.request.query.get('owner')}) }}">Owner</a></th>
             </tr>
             </thead>
             <tbody>
@@ -50,6 +48,10 @@
                     <td>{{ pet.name }}</td>
                     <td>{{ pet.description }}</td>
                     <td>{{ pet.owner.name }}</td>
+                    <td>
+                        <a href="{{ path('app_pet_update', {'id': pet.id}) }}" class="btn btn-primary">Обновить</a>
+                        <a href="{{ path('app_pet_delete', {'id': pet.id, 'name': app.request.query.get('name'), 'description': app.request.query.get('description'), 'owner': app.request.query.get('owner'), 'page': app.request.query.get('page', 1)}) }}" class="btn btn-danger">Удалить</a>
+                    </td>
                 </tr>
             {% endfor %}
             </tbody>
@@ -63,25 +65,25 @@
 
                     {% if currentPage > 1 %}
                         <li class="page-item">
-                            <a class="page-link" href="{{ path('app_pet_search', {'page': 1}|merge(app.request.query.all)) }}">First</a>
+                            <a class="page-link" href="{{ path('app_pet_search', app.request.query|merge({'page': 1})) }}">First</a>
                         </li>
                         <li class="page-item">
-                            <a class="page-link" href="{{ path('app_pet_search', {'page': currentPage - 1}|merge(app.request.query.all)) }}">Previous</a>
+                            <a class="page-link" href="{{ path('app_pet_search', app.request.query|merge({'page': currentPage - 1})) }}">Previous</a>
                         </li>
                     {% endif %}
 
                     {% for page in 1..pageCount %}
                         <li class="page-item{% if page == currentPage %} active{% endif %}">
-                            <a class="page-link" href="{{ path('app_pet_search', {'page': page, 'name': form.vars.value.name ?? null, 'description': form.vars.value.description ?? null, 'owner': form.vars.value.owner ?? null }) }}">{{ page }}</a>
+                            <a class="page-link" href="{{ path('app_pet_search', app.request.query|merge({'page': page})) }}">{{ page }}</a>
                         </li>
                     {% endfor %}
 
                     {% if currentPage < pageCount %}
                         <li class="page-item">
-                            <a class="page-link" href="{{ path('app_pet_search', {'page': currentPage + 1}|merge(app.request.query.all)) }}">Next</a>
+                            <a class="page-link" href="{{ path('app_pet_search', app.request.query|merge({'page': currentPage + 1})) }}">Next</a>
                         </li>
                         <li class="page-item">
-                            <a class="page-link" href="{{ path('app_pet_search', {'page': pageCount}|merge(app.request.query.all)) }}">Last</a>
+                            <a class="page-link" href="{{ path('app_pet_search', app.request.query|merge({'page': pageCount})) }}">Last</a>
                         </li>
                     {% endif %}
                 </ul>

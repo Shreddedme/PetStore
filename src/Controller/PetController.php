@@ -5,7 +5,7 @@ namespace App\Controller;
 use App\Entity\Pet;
 use App\Exception\EntityNotFoundException;
 use App\Model\Dto\PetDto;
-use App\Model\Dto\PetSearchDto;
+use App\Model\Dto\PetCombinedDto;
 use App\Service\Pet\PetUseCase;
 use OpenApi\Annotations as OA;
 use Psr\Cache\InvalidArgumentException;
@@ -76,69 +76,63 @@ class PetController extends AbstractController
     }
 
     /**
-     * @ParamConverter("petSearchDto", class=PetSearchDto::class, converter="pet_combined_param_converter")
+     * @ParamConverter("petCombinedDto", class=PetCombinedDto::class, converter="pet_combined_param_converter")
      * @OA\Tag(name="Pet")
-     * @OA\RequestBody(
-     *      required=true,
-     *      description="Filter parameters",
-     *      @OA\MediaType(
-     *          mediaType="application/json",
-     *          @OA\Schema(
-     *              @OA\Property(property="name", type="string", default="cat"),
-     *              @OA\Property(property="description", type="string", default="small"),
-     *              @OA\Property(property="owner", type="string", default="John"),
-     *              @OA\Property(property="page", type="integer", default=1)
-     *          )
-     *      )
-     *  )
+     * @OA\Get(
+     * path="/api/pets",
+     * summary="Получить список питомцев с фильтрами",
+     * tags={"Pet"},
+     * @OA\Parameter(
+     * name="name",
+     * in="query",
+     * description="Имя питомца",
+     * required=false,
+     * @OA\Schema(type="string", default="cat")
+     * ),
+     * @OA\Parameter(
+     * name="description",
+     * in="query",
+     * description="Описание питомца",
+     * required=false,
+     * @OA\Schema(type="string", default="small")
+     * ),
+     * @OA\Parameter(
+     * name="owner",
+     * in="query",
+     * description="Имя владельца",
+     * required=false,
+     * @OA\Schema(type="string", default="John")
+     * ),
+     * @OA\Parameter(
+     * name="page",
+     * in="query",
+     * description="Номер страницы",
+     * required=false,
+     * @OA\Schema(type="integer", default=1)
+     * ),
      * @OA\Response(
-     *      response=200,
-     *      description="Список питомцев",
-     *      @OA\JsonContent(
-     *          type="array",
-     *          @OA\Items(ref=@Model(type=\App\Model\Dto\PetSearchDto::class)),
-     *      )
-     *  )
+     * response=200,
+     * description="Список питомцев",
+     * @OA\JsonContent(
+     * type="array",
+     * @OA\Items(ref=@Model(type=\App\Model\Dto\PetCombinedDto::class))
+     * )
+     * ),
      * @OA\Response(
-     *      response=400,
-     *      description="Неверные данные",
-     *      @OA\JsonContent(ref=@Model(type=\App\Model\ErrorHandling\ErrorResponse::class))
-     *  )
-     * @param PetSearchDto $petSearchDto
+     * response=400,
+     * description="Неверные данные",
+     * @OA\JsonContent(ref=@Model(type=\App\Model\ErrorHandling\ErrorResponse::class))
+     * )
+     * )
+     * @param PetCombinedDto $petCombinedDto
      * @return JsonResponse
-     */
-    #[Route('/api/pets', methods: ['PUT'])]
-    public function getByFilters(PetSearchDto $petSearchDto): JsonResponse
-    {
-       return $this->json($this->petUseCase->findByFilter($petSearchDto));
-    }
-
-    #[Route('/api/pet', methods: 'GET')]
-    /**
-     * @OA\Tag(name="Pet")
-     * @OA\Response(
-     *           response=200,
-     *           description="Список питомцев",
-     *           @OA\JsonContent(ref=@Model(type=\App\Entity\Pet::class))
-     *       )
      * @throws InvalidArgumentException
      */
-    public function getList(): JsonResponse
+    #[Route('/api/pets', methods: ['GET'])]
+    public function getByFilters(PetCombinedDto $petCombinedDto): JsonResponse
     {
-        $cacheKey = 'pet_list_cache';
-
-        $cachedData = $this->cache->get($cacheKey, function (ItemInterface $item) {
-//            $item->tag('pet');
-            $item->expiresAfter(3600);
-            $pets = $this->petUseCase->findAll();
-
-            return $this->serializer->serialize($pets, 'json');
-        });
-
-        return new JsonResponse($cachedData, 200, [], true);
+       return $this->json($this->petUseCase->findByFilter($petCombinedDto));
     }
-
-
 
     #[Route('/api/pet/{id}', name: 'update_method', methods: 'PUT')]
     /**

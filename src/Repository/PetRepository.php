@@ -3,11 +3,11 @@
 namespace App\Repository;
 
 use App\Entity\Pet;
-use App\Model\Dto\PetSearchDto;
-use App\Model\Dto\PetSortDto;
+use App\Model\Dto\PetCombinedDto;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\Tools\Pagination\Paginator;
 use Doctrine\Persistence\ManagerRegistry;
+use Symfony\Contracts\Cache\ItemInterface;
 use function Doctrine\ORM\QueryBuilder;
 
 /**
@@ -20,56 +20,51 @@ use function Doctrine\ORM\QueryBuilder;
  */
 class PetRepository extends ServiceEntityRepository
 {
+    public const CACHE_EXPIREDTIME = 3600;
+
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Pet::class);
     }
 
     /**
-     * @param PetSearchDto $petSearchDto
+     * @param PetCombinedDto $petCombinedDto
      * @return Paginator
      */
-    public function findByFilter(PetSearchDto $petSearchDto, int $count = 10): Paginator
+    public function findByFilter(PetCombinedDto $petCombinedDto): Paginator
     {
-        $page = $petSearchDto->getPage() ?? 1;
+        $page = $petCombinedDto->getPage() ?? 1;
         $queryBuilder = $this->createQueryBuilder('p')
             ->select('p')
             ->leftJoin('p.owner', 'o')
-            ->orderBy('p.id', 'ASC');
+            ->orderBy('p.' . $petCombinedDto->getSortBy(), $petCombinedDto->getSortDirection());
 
-        if ($petSearchDto->getName() !== null) {
+        if ($petCombinedDto->getName() !== null) {
             $queryBuilder
                 ->andWhere('LOWER(p.name) LIKE LOWER(:name)')
-                ->setParameter('name', '%' . $petSearchDto->getName() . '%');
+                ->setParameter('name', '%' . $petCombinedDto->getName() . '%');
         }
 
-        if ($petSearchDto->getOwner() !== null) {
+        if ($petCombinedDto->getOwner() !== null) {
             $queryBuilder
                 ->andWhere('LOWER(o.name) LIKE LOWER(:owner)')
-                ->setParameter('owner', '%' . $petSearchDto->getOwner() . '%');
+                ->setParameter('owner', '%' . $petCombinedDto->getOwner() . '%');
         }
 
-        if ($petSearchDto->getDescription() !== null) {
+        if ($petCombinedDto->getDescription() !== null) {
             $queryBuilder
                 ->andWhere('LOWER(p.description) LIKE LOWER(:description)')
-                ->setParameter('description', '%' . $petSearchDto->getDescription() . '%');
+                ->setParameter('description', '%' . $petCombinedDto->getDescription() . '%');
         }
 
         $query = $queryBuilder->getQuery();
 
-        $firstResult = ($page - 1) * $count;
+        $firstResult = ($page - 1) * $petCombinedDto->getCount();
 
         $query->setFirstResult($firstResult)
-            ->setMaxResults($count);
+            ->setMaxResults($petCombinedDto->getCount())
+            ->enableResultCache(self::CACHE_EXPIREDTIME, 'filters_id');
 
         return new Paginator($query, true);
-    }
-
-    public function findAllSorted(PetSortDto $petSortDto): array
-    {
-        $qb = $this->createQueryBuilder('p')
-            ->orderBy('p.' . $petSortDto->getSortBy(), $petSortDto->getSortDirection());
-
-        return $qb->getQuery()->getResult();
     }
 }

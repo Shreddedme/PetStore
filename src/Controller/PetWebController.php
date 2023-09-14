@@ -2,10 +2,11 @@
 
 namespace App\Controller;
 
-use App\Model\Dto\PetSortDto;
+use App\Exception\EntityNotFoundException;
 use App\Model\PetForm\PetFormType;
 use App\Model\PetForm\PetSearchType;
 use App\Service\Pet\PetUseCase;
+use Exception;
 use Psr\Cache\InvalidArgumentException;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -14,6 +15,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Contracts\Cache\CacheInterface;
+use App\Model\Dto\PetCombinedDto;
 
 class PetWebController extends AbstractController
 {
@@ -42,13 +44,14 @@ class PetWebController extends AbstractController
         }
 
         $form = $this->createForm(PetFormType::class);
+
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             $data = $form->getData();
             $this->petUseCase->create($data);
 
-            return $this->redirectToRoute('app_pet_list');
+            return $this->redirectToRoute('app_pet_search');
         }
 
         return $this->render('pet_web/createPetBootstrap.html.twig', [
@@ -57,50 +60,35 @@ class PetWebController extends AbstractController
     }
 
     /**
-     * @ParamConverter("petSortDto", class=PetSortDto::class, converter="pet_combined_param_converter")
-     * @throws InvalidArgumentException
-     */
-    #[Route('/pet', name: 'app_pet_list')]
-    public function getList(PetSortDto $petSortDto): Response
-    {
-        $pets = $this->petUseCase->findAllSorted($petSortDto);
-
-        return $this->render('pet_web/getListPetBootstrap.html.twig', [
-            'pets' => $pets,
-            'sortBy' => $petSortDto->getSortBy(),
-            'sortDirection' => $petSortDto->getSortDirection(),
-        ]);
-    }
-
-    /**
-     * @throws \Exception
+     * @ParamConverter("petCombinedDto", class=PetCombinedDto::class, converter="pet_combined_param_converter")
+     * @throws Exception
      */
     #[Route('/pet/search', name: 'app_pet_search')]
-    public function getByFilters(Request $request): Response
+    public function getByFilters(Request $request, PetCombinedDto $petCombinedDto): Response
     {
-        $form = $this->createForm(PetSearchType::class);
+        $form = $this->createFormBuilder(PetSearchType::class)
+            ->setMethod('GET')
+            ->getForm();
 
         $form->handleRequest($request);
 
-        $pets = [];
-        $paginator = null;
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $petSearchDto = $form->getData();
-            dump('here');
-
-            $paginator = $this->petUseCase->findByFilter($petSearchDto);
-            $pets = $paginator->getIterator();
-        }
+        $paginator = $this->petUseCase->findByFilter($petCombinedDto);
+        $pets = $paginator->getIterator();
 
         return $this->render('pet_web/pet_web_search/listSearchResults.html.twig', [
             'form' => $form->createView(),
             'pets' => $pets,
             'paginator' => $paginator,
+            'sortBy' => $petCombinedDto->getSortBy(),
+            'sortDirection' => $petCombinedDto->getSortDirection(),
+            'petCombinedDto' => $petCombinedDto,
+
         ]);
     }
 
-
+    /**
+     * @throws EntityNotFoundException
+     */
     #[Route('/pet/{id}', name: 'app_pet_update')]
     public function update(Request $request, int $id): Response
     {
@@ -115,7 +103,7 @@ class PetWebController extends AbstractController
             $data = $form->getData();
             $this->petUseCase->update($id, $data);
 
-            return $this->redirectToRoute('app_pet_list');
+            return $this->redirectToRoute('app_pet_search');
         }
 
         return $this->render('pet_web/updatePetBootstrap.html.twig', [
@@ -127,11 +115,11 @@ class PetWebController extends AbstractController
      * @throws InvalidArgumentException
      */
     #[Route('/pet/delete/{id}', name: 'app_pet_delete')]
-    public function delete(int $id): Response
+    public function delete(Request $request, int $id): Response
     {
         $this->petUseCase->delete($id);
         $this->cache->delete('search_pet_list_cache');
 
-        return $this->redirectToRoute('app_pet_list');
+        return $this->redirectToRoute('app_pet_search');
     }
 }
