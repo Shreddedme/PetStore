@@ -46,6 +46,10 @@ class Pet
         pattern: '/^[a-zA-Z0-9\s]*$/',
         message: 'Forbidden characters cannot be entered'
     )]
+    /**
+     * @ORM\Column(type="string")
+     * @Groups({"pet:create", "pet:read"})
+     */
     private string $name;
 
     #[ORM\Column(type: Types::TEXT)]
@@ -58,24 +62,48 @@ class Pet
         pattern: '/^[a-zA-Z0-9\s]*$/',
         message: 'Forbidden characters cannot be entered'
     )]
+    /**
+     * @ORM\Column(type="string")
+     * @Groups({"pet:create", "pet:read"})
+     */
     private string $description;
 
     #[ORM\Column(name: 'created_at', type: 'datetime', nullable: false)]
     #[Gedmo\Timestampable(on: 'create')]
+    /**
+     * @ORM\Column(type="DateTime")
+     * @Groups({"pet:create", "pet:read"})
+     */
     private DateTime $createdAt;
 
     #[ORM\Column(name: 'updated_at', type: 'datetime', nullable: false)]
     #[Gedmo\Timestampable(on: 'update')]
+    /**
+     * @ORM\Column(type="DateTime")
+     * @Groups({"pet:create", "pet:read"})
+     */
     private DateTime $updatedAt;
 
     #[ORM\Column(type: 'integer', nullable: false)]
+    /**
+     * @ORM\Column(type="integer")
+     * @Groups({"pet:create", "pet:read"})
+     */
     private int $createdBy;
 
     #[ORM\Column(type: 'integer', nullable: true)]
+    /**
+     * @ORM\Column(type="integer")
+     * @Groups({"pet:create", "pet:read"})
+     */
     private ?int $updatedBy = null;
 
     #[ORM\ManyToOne(inversedBy: 'pet', fetch: 'EAGER' )]
     #[ORM\JoinColumn(nullable: false)]
+    /**
+     * @ORM\Column(type="integer")
+     * @Groups({"pet:create", "pet:read"})
+     */
     private User $owner;
 
     public function getId(): ?int

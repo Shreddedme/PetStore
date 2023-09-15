@@ -1,3 +1,8 @@
 framework:
     cache:
         default_memcached_provider: '%env(MEMCACHED_URL)%'
+        pools:
+            doctrine.result_cache_pool:
+                adapter: cache.app
+            doctrine.system_cache_pool:
+                adapter: cache.app
