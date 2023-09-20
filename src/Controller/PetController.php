@@ -8,7 +8,6 @@ use App\Model\Dto\PetDto;
 use App\Model\Dto\PetCombinedDto;
 use App\Service\Pet\PetUseCase;
 use OpenApi\Annotations as OA;
-use Psr\Cache\InvalidArgumentException;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -74,54 +73,53 @@ class PetController extends AbstractController
      * @ParamConverter("petCombinedDto", class=PetCombinedDto::class, converter="pet_combined_param_converter")
      * @OA\Tag(name="Pet")
      * @OA\Get(
-     * path="/api/pets",
-     * summary="Получить список питомцев с фильтрами",
-     * tags={"Pet"},
-     * @OA\Parameter(
-     * name="name",
-     * in="query",
-     * description="Имя питомца",
-     * required=false,
-     * @OA\Schema(type="string", default="cat")
-     * ),
-     * @OA\Parameter(
-     * name="description",
-     * in="query",
-     * description="Описание питомца",
-     * required=false,
-     * @OA\Schema(type="string", default="small")
-     * ),
-     * @OA\Parameter(
-     * name="owner",
-     * in="query",
-     * description="Имя владельца",
-     * required=false,
-     * @OA\Schema(type="string", default="John")
-     * ),
-     * @OA\Parameter(
-     * name="page",
-     * in="query",
-     * description="Номер страницы",
-     * required=false,
-     * @OA\Schema(type="integer", default=1)
-     * ),
-     * @OA\Response(
-     * response=200,
-     * description="Список питомцев",
-     * @OA\JsonContent(
-     * type="array",
-     * @OA\Items(ref=@Model(type=\App\Model\Dto\PetCombinedDto::class))
-     * )
-     * ),
-     * @OA\Response(
-     * response=400,
-     * description="Неверные данные",
-     * @OA\JsonContent(ref=@Model(type=\App\Model\ErrorHandling\ErrorResponse::class))
-     * )
+     *     path="/api/pets",
+     *     summary="Получить список питомцев с фильтрами",
+     *     tags={"Pet"},
+     *     @OA\Parameter(
+     *         name="name",
+     *         in="query",
+     *         description="Имя питомца",
+     *         required=false,
+     *         @OA\Schema(type="string", default="cat")
+     *     ),
+     *     @OA\Parameter(
+     *         name="description",
+     *         in="query",
+     *         description="Описание питомца",
+     *         required=false,
+     *         @OA\Schema(type="string", default="small")
+     *     ),
+     *     @OA\Parameter(
+     *         name="owner",
+     *         in="query",
+     *         description="Имя владельца",
+     *         required=false,
+     *         @OA\Schema(type="string", default="John")
+     *     ),
+     *     @OA\Parameter(
+     *         name="page",
+     *         in="query",
+     *         description="Номер страницы",
+     *         required=false,
+     *         @OA\Schema(type="integer", default=1)
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Список питомцев",
+     *         @OA\JsonContent(
+     *             type="array",
+     *             @OA\Items(ref=@Model(type=\App\Model\Dto\PetCombinedDto::class))
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Неверные данные",
+     *         @OA\JsonContent(ref=@Model(type=\App\Model\ErrorHandling\ErrorResponse::class))
+     *     )
      * )
      * @param PetCombinedDto $petCombinedDto
      * @return JsonResponse
-     * @throws InvalidArgumentException
      */
     #[Route('/api/pets', methods: ['GET'])]
     public function getByFilters(PetCombinedDto $petCombinedDto): JsonResponse

@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Enum\ApiGroupsEnum;
 use App\Exception\EntityNotFoundException;
 use App\Model\UserForm\UserFormType;
 use App\Service\User\UserUseCase;
@@ -15,6 +16,9 @@ use Symfony\Contracts\Cache\ItemInterface;
 
 class UserWebController extends AbstractController
 {
+    const CACHE_KEY = 'search_user_list_cache';
+    const EXPIREDTIME = 3600;
+
     public function __construct(
         private UserUseCase $userUseCase,
         private CacheInterface $cache,
@@ -36,7 +40,7 @@ class UserWebController extends AbstractController
             $data = $form->getData();
             $this->userUseCase->create($data);
 
-            return $this->redirectToRoute('app_user_list');
+            return $this->redirectToRoute(ApiGroupsEnum::USER_LIST->value);
         }
 
         return $this->render('user_web/createUserBootstrap.html.twig', [
@@ -50,10 +54,8 @@ class UserWebController extends AbstractController
     #[Route('/user', name: 'app_user_list')]
     public function getList(): Response
     {
-        $cacheKey = 'search_user_list_cache';
-
-        $cachedUsers = $this->cache->get($cacheKey, function (ItemInterface $item) {
-            $item->expiresAfter(3600);
+        $cachedUsers = $this->cache->get(self::CACHE_KEY, function (ItemInterface $item) {
+            $item->expiresAfter(self::EXPIREDTIME);
 
             return $this->userUseCase->findAll();
         });

@@ -20,7 +20,6 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 class PetCombinedDto
 {
-
     public const PETCOUNT = 10;
     public const SORTBY = 'id';
     public const SORTDIRECTION = 'asc';
