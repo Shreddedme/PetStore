@@ -2,19 +2,18 @@
 
 namespace App\Controller;
 
+use App\Enum\ApiGroupsEnum;
 use App\Exception\EntityNotFoundException;
 use App\Model\PetForm\PetFormType;
 use App\Model\PetForm\PetSearchType;
 use App\Service\Pet\PetUseCase;
 use Exception;
-use Psr\Cache\InvalidArgumentException;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
-use Symfony\Contracts\Cache\CacheInterface;
 use App\Model\Dto\PetCombinedDto;
 
 class PetWebController extends AbstractController
@@ -22,14 +21,9 @@ class PetWebController extends AbstractController
     public function __construct(
         private PetUseCase $petUseCase,
         private AuthorizationCheckerInterface $authorizationChecker,
-        private CacheInterface $cache,
     )
     {}
-    #[Route('/pet/menu', name: 'app_pet_menu')]
-    public function main(): Response
-    {
-        return $this->render('pet_web/menuPet.html.twig');
-    }
+
     #[Route('/pet/select', name: 'app_select_menu')]
     public function selectActionAfterLogin(): Response
     {
@@ -51,7 +45,7 @@ class PetWebController extends AbstractController
             $data = $form->getData();
             $this->petUseCase->create($data);
 
-            return $this->redirectToRoute('app_pet_search');
+            return $this->redirectToRoute(ApiGroupsEnum::PET_SEARCH->value);
         }
 
         return $this->render('pet_web/createPetBootstrap.html.twig', [
@@ -103,7 +97,7 @@ class PetWebController extends AbstractController
             $data = $form->getData();
             $this->petUseCase->update($id, $data);
 
-            return $this->redirectToRoute('app_pet_search');
+            return $this->redirectToRoute(ApiGroupsEnum::PET_SEARCH->value);
         }
 
         return $this->render('pet_web/updatePetBootstrap.html.twig', [
@@ -112,14 +106,12 @@ class PetWebController extends AbstractController
     }
 
     /**
-     * @throws InvalidArgumentException
      */
     #[Route('/pet/delete/{id}', name: 'app_pet_delete')]
-    public function delete(Request $request, int $id): Response
+    public function delete(int $id): Response
     {
         $this->petUseCase->delete($id);
-        $this->cache->delete('search_pet_list_cache');
 
-        return $this->redirectToRoute('app_pet_search');
+        return $this->redirectToRoute(ApiGroupsEnum::PET_SEARCH->value);
     }
 }

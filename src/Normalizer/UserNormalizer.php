@@ -20,6 +20,6 @@ class UserNormalizer implements NormalizerInterface
 
     public function supportsNormalization(mixed $data, string $format = null)
     {
-        return $data instanceof User;
+        return false;
     }
 }

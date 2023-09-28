@@ -11,11 +11,7 @@ use App\Repository\PetRepository;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Tools\Pagination\Paginator;
-use Psr\Cache\InvalidArgumentException;
 use Symfony\Bundle\SecurityBundle\Security;
-use Symfony\Component\Cache\Adapter\MemcachedAdapter;
-use Symfony\Contracts\Cache\CacheInterface;
-use Symfony\Contracts\Cache\ItemInterface;
 
 class PetUseCase
 {
@@ -80,9 +76,7 @@ class PetUseCase
         $currentUser = $this->security->getUser();
 
         if ($currentUser instanceof User) {
-            $userId = $this->userRepository->find($currentUser->getId());
-
-            $user = $this->userRepository->find($userId);
+            $user = $this->userRepository->find($currentUser->getId());
 
             if (!$user) {
                 throw new EntityNotFoundException(User::class, $id);
@@ -99,7 +93,6 @@ class PetUseCase
         }
 
         throw new \LogicException('Current user is not authenticated');
-
     }
 
     public function delete(int $id): void
