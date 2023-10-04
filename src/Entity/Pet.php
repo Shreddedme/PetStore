@@ -8,6 +8,7 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use OpenApi\Annotations as OA;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -34,6 +35,7 @@ class Pet
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups("pet:get")]
     private ?int $id = null;
 
     #[ORM\Column(type: Types::TEXT)]
@@ -46,6 +48,7 @@ class Pet
         pattern: '/^[a-zA-Z0-9\s]*$/',
         message: 'Forbidden characters cannot be entered'
     )]
+    #[Groups("pet:get")]
     private string $name;
 
     #[ORM\Column(type: Types::TEXT)]
@@ -58,6 +61,7 @@ class Pet
         pattern: '/^[a-zA-Z0-9\s]*$/',
         message: 'Forbidden characters cannot be entered'
     )]
+    #[Groups("pet:get")]
     private string $description;
 
     #[ORM\Column(name: 'created_at', type: 'datetime', nullable: false)]
@@ -66,16 +70,20 @@ class Pet
 
     #[ORM\Column(name: 'updated_at', type: 'datetime', nullable: false)]
     #[Gedmo\Timestampable(on: 'update')]
+    #[Groups("pet:get")]
     private DateTime $updatedAt;
 
     #[ORM\Column(type: 'integer', nullable: false)]
+    #[Groups("pet:get")]
     private int $createdBy;
 
     #[ORM\Column(type: 'integer', nullable: true)]
+    #[Groups("pet:get")]
     private ?int $updatedBy = null;
 
     #[ORM\ManyToOne(inversedBy: 'pet', fetch: 'EAGER' )]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups("pet:get")]
     private User $owner;
 
     public function getId(): ?int

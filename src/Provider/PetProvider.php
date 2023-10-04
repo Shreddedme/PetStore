@@ -18,12 +18,14 @@ class PetProvider implements ProviderInterface
     {
         $pet = $this->petRepository->find($uriVariables['id']);
 
-        $petDto = new  PetDto();
+        $petDto = new PetDto();
         $petDto->setId($pet->getId());
         $petDto->setName($pet->getName());
         $petDto->setDescription($pet->getDescription());
         $petDto->setCreatedAt($pet->getCreatedAt());
         $petDto->setUpdatedAt($pet->getUpdatedAt());
+        $petDto->setUpdatedBy($pet->getUpdatedBy());
+        $petDto->setCreatedBy($pet->getCreatedBy());
         $petDto->setOwner($pet->getOwner());
 
         return $petDto;

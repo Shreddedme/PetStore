@@ -13,6 +13,7 @@ use OpenApi\Annotations as OA;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -36,6 +37,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups("user:get")]
     private ?int $id = null;
 
     #[ORM\Column(type: Types::TEXT)]
@@ -48,6 +50,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         pattern: '/^[a-zA-Z0-9\s]*$/',
         message: 'Forbidden characters cannot be entered'
     )]
+    #[Groups(["user:get", "user:getShort"])]
     private string $name;
 
     /**
@@ -57,17 +60,21 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private string $password;
 
     #[ORM\Column(length: 180, unique: true)]
+    #[Groups("user:get")]
     private string $email;
 
     #[ORM\Column]
+    #[Groups("user:get")]
     private array $roles = [];
 
     #[ORM\Column(name: 'created_at', type: 'datetime', nullable: false)]
     #[Gedmo\Timestampable(on: 'create')]
+    #[Groups("user:get")]
     private DateTime $createdAt;
 
     #[ORM\Column(name: 'updated_at', type: 'datetime', nullable: false)]
     #[Gedmo\Timestampable(on: 'update')]
+    #[Groups("user:get")]
     private DateTime $updatedAt;
 
     #[ORM\Column(type: 'integer', nullable: true)]

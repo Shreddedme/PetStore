@@ -8,10 +8,11 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
-use App\Entity\Pet;
 use App\Entity\User;
 use App\Processor\PetCreateProcessor;
+use App\Processor\PetDeleteProcessor;
 use App\Processor\PetUpdateProcessor;
+use App\Provider\PetListProvider;
 use App\Provider\PetProvider;
 use DateTime;
 use OpenApi\Annotations as OA;
@@ -31,43 +32,39 @@ use Gedmo\Mapping\Annotation as Gedmo;
 #[ApiResource(
     operations: [
         new GetCollection(
-            uriTemplate: '/pets',
-            class: Pet::class,
+            uriTemplate: '/pet',
+            normalizationContext: ['groups' => ['get', 'user:getShort']],
+            provider: PetListProvider::class,
         ),
         new Get(
             uriTemplate: '/pet/{id}',
-            output: PetDto::class,
+            normalizationContext: ['groups' => ['get', 'user:getShort']],
             provider: PetProvider::class,
         ),
         new Post(
-            uriTemplate: '/pet/create',
-            security: 'is_authenticated()',
-            input: PetDto::class,
-            output: PetDto::class,
+            uriTemplate: '/pet',
             processor: PetCreateProcessor::class,
         ),
         new Put(
-            uriTemplate: '/pet/update',
+            uriTemplate: '/pet/{id}',
+            normalizationContext: ['groups' => ['get', 'user:getShort']],
             denormalizationContext:['groups' => ['put']],
-            security: 'is_authenticated()',
-            input: PetDto::class,
-            output: PetDto::class,
+            provider: PetProvider::class,
             processor: PetUpdateProcessor::class,
         ),
         new Delete(
             uriTemplate: '/pet/{id}',
-            class: Pet::class,
-            security: 'is_authenticated()',
+            provider: PetProvider::class,
+            processor: PetDeleteProcessor::class,
         ),
     ],
-    stateless: false,
     normalizationContext: ['groups' => ['read']],
-    denormalizationContext: ['groups' => ['write', 'patch']],
+    denormalizationContext: ['groups' => ['write']],
 )]
 class PetDto
 {
     #[ApiProperty(openapiContext: ['example' => 1])]
-    #[Groups(['read', 'put'])]
+    #[Groups(['read', 'get'])]
     private ?int $id = null;
 
     #[Assert\NotBlank(message: 'Empty field')]
@@ -79,7 +76,7 @@ class PetDto
         pattern: '/^[a-zA-Z0-9\s]*$/',
         message: 'Forbidden characters cant be entered'
     )]
-    #[Groups(['read', 'write', 'put'])]
+    #[Groups(['read', 'write', 'put', 'get'])]
     #[ApiProperty(openapiContext: ['example' => 'Cat'])]
     private string $name;
 
@@ -92,26 +89,26 @@ class PetDto
         pattern: '/^[a-zA-Z0-9\s]*$/',
         message: 'Forbidden characters cant be entered'
     )]
-    #[Groups(['read', 'write', 'put'])]
+    #[Groups(['read', 'write', 'put', 'get'])]
     #[ApiProperty(openapiContext: ['example' => 'Lazy'])]
     private string $description;
 
     #[Gedmo\Timestampable(on: 'create')]
-    #[Groups(['read'])]
+    #[Groups(['read', 'get'])]
     private ?DateTime $createdAt = null;
 
     #[Gedmo\Timestampable(on: 'create')]
-    #[Groups(['read'])]
+    #[Groups(['read', 'get'])]
     private DateTime $updatedAt;
 
     #[ApiProperty(openapiContext: ['example' => 1])]
-    #[Groups(['write'])]
+    #[Groups(['write', 'get'])]
     private int $createdBy;
 
-    #[Groups(['read'])]
+    #[Groups(['read', 'get'])]
     private ?int $updatedBy = null;
 
-    #[Groups(['read'])]
+    #[Groups(['read', 'write', 'get'])]
     private User $owner;
 
     public function getId(): ?int

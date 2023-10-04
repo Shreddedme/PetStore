@@ -9,9 +9,10 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
-use App\Entity\User;
 use App\Processor\UserCreateProcessor;
+use App\Processor\UserDeleteProcessor;
 use App\Processor\UserUpdateProccesor;
+use App\Provider\UserListProvider;
 use App\Provider\UserProvider;
 use OpenApi\Annotations as OA;
 use Symfony\Component\Serializer\Annotation\Groups;
@@ -20,44 +21,36 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ApiResource(
     operations: [
         new GetCollection(
-            uriTemplate: '/users',
-            class: User::class,
+            uriTemplate: '/user',
+            provider: UserListProvider::class,
         ),
         new Get(
             uriTemplate: '/user/{id}',
-            output: UserDto::class,
             provider: UserProvider::class,
         ),
         new Post(
-            uriTemplate: '/user/create',
-            security: 'is_authenticated()',
-            input: UserDto::class,
-            output: UserDto::class,
+            uriTemplate: '/user',
             processor: UserCreateProcessor::class,
         ),
         new Put(
-            uriTemplate: '/user/update',
-            class: User::class,
-            denormalizationContext:['groups' => ['put']],
-            security: 'is_authenticated()',
-            input: UserDto::class,
-            output: UserDto::class,
+            uriTemplate: '/user/{id}',
+            denormalizationContext:['groups' => ['user:put']],
+            provider: UserProvider::class,
             processor: UserUpdateProccesor::class,
         ),
         new Delete(
             uriTemplate: '/user/{id}',
-            class: User::class,
-            security: 'is_authenticated()',
+            provider: UserProvider::class,
+            processor: UserDeleteProcessor::class,
         ),
     ],
-    stateless: false,
-    normalizationContext: ['groups' => ['read']],
-    denormalizationContext: ['groups' => ['write']],
+    normalizationContext: ['groups' => ['user:read']],
+    denormalizationContext: ['groups' => ['user:write']],
 )]
 class UserDto
 {
+    #[Groups(['user:read', 'user:write', 'user:put'])]
     #[ApiProperty(openapiContext: ['example' => 1])]
-    #[Groups('read', 'put')]
     private ?int $id = null;
 
     #[Assert\NotBlank(message: 'Empty field')]
@@ -69,7 +62,7 @@ class UserDto
         pattern: '/^[a-zA-Z0-9\s]*$/',
         message: 'Forbidden characters cant be entered'
     )]
-    #[Groups(['read', 'write', 'put'])]
+    #[Groups(['user:read', 'user:write', 'user:put'])]
     #[ApiProperty(openapiContext: ['example' => 'John'])]
     private string $name;
 
@@ -78,8 +71,8 @@ class UserDto
         max: 255,
         maxMessage: 'Field cant be longer than 255'
     )]
-    #[Groups('write')]
     #[ApiProperty(openapiContext: ['example' => '123456'])]
+    #[Groups(['user:write', 'user:put'])]
     private string $password;
 
     #[Assert\NotBlank(message: 'Empty field')]
@@ -87,7 +80,7 @@ class UserDto
         max: 255,
         maxMessage: 'Field cant be longer than 255'
     )]
-    #[Groups(['read', 'write', 'put'])]
+    #[Groups(['user:read', 'user:write', 'user:put'])]
     #[ApiProperty(openapiContext: ['example' => 'example@mail.ru'])]
     private string $email;
 
@@ -103,7 +96,7 @@ class UserDto
      *     @OA\Items(type="string")
      * )
      */
-    #[Groups(['read', 'write', 'put'])]
+    #[Groups(['user:read', 'user:write', 'user:put'])]
     #[ApiProperty(openapiContext: ['example' => ["ROLE_USER"]])]
     private array $roles;
 

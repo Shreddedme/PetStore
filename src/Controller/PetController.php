@@ -66,7 +66,7 @@ class PetController extends AbstractController
      */
     public function getOne(Pet $pet): JsonResponse
     {
-        return $this->json($pet);
+        return $this->json($pet, 200, [], ['groups' => ['pet:get', 'user:getShort']]);
     }
 
     /**
@@ -124,7 +124,7 @@ class PetController extends AbstractController
     #[Route('/api/pets', methods: ['GET'])]
     public function getByFilters(PetCombinedDto $petCombinedDto): JsonResponse
     {
-       return $this->json($this->petUseCase->findByFilter($petCombinedDto));
+       return $this->json($this->petUseCase->findByFilter($petCombinedDto), 200, [], ['groups' => ['pet:get', 'user:getShort']]);
     }
 
     #[Route('/api/pet/{id}', name: 'update_method', methods: 'PUT')]

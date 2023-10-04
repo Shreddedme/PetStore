@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\User;
+use App\Exception\EntityNotFoundException;
 use App\Model\Dto\UserDto;
 use App\Service\User\UserUseCase;
 use OpenApi\Annotations as OA;
@@ -12,13 +13,11 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Nelmio\ApiDocBundle\Annotation\Model;
-use Symfony\Component\Serializer\SerializerInterface;
 
 class UserController extends AbstractController
 {
     public function __construct(
         private UserUseCase $userUseCase,
-        private SerializerInterface $serializer,
     )
     {}
 
@@ -61,11 +60,11 @@ class UserController extends AbstractController
      *           response=200,
      *           description="Получили пользователя",
      *           @OA\JsonContent(ref=@Model(type=\App\Entity\User::class))
-     *       )
+     * )
      */
     public function getOne(User $user): JsonResponse
     {
-        return $this->json($user);
+        return $this->json($user, 200, [], ['groups' => 'user:get']);
     }
 
     #[Route('/api/user', methods: 'GET')]
@@ -73,9 +72,7 @@ class UserController extends AbstractController
     {
         $users = $this->userUseCase->findAll();
 
-        $usersJson = $this->serializer->serialize($users, 'json');
-
-        return new JsonResponse($usersJson, 200, [], true);
+        return $this->json($users, 200, [], ['groups' => 'user:get']);
     }
 
     #[Route('/api/user/{id}', name: 'user_update_method', methods: 'PUT')]
@@ -94,6 +91,7 @@ class UserController extends AbstractController
      *           description="Пользователь обновлен",
      *           @OA\JsonContent(ref=@Model(type=\App\Entity\User::class))
      *       )
+     * @throws EntityNotFoundException
      */
     public function update(UserDto $userDto, int $id): JsonResponse
     {
