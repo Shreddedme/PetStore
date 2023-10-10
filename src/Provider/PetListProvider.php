@@ -45,6 +45,7 @@ class PetListProvider implements ProviderInterface
             $petDto->setDescription($pet->getDescription());
             $petDto->setCreatedAt($pet->getCreatedAt());
             $petDto->setUpdatedAt($pet->getUpdatedAt());
+            $petDto->setCreatedBy($pet->getCreatedBy());
             $petDto->setUpdatedBy($pet->getUpdatedBy());
             $petDto->setOwner($pet->getOwner());
             $petDtos[] = $petDto;

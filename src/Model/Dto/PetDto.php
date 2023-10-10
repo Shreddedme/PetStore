@@ -1,6 +1,7 @@
 <?php
 namespace App\Model\Dto;
 
+use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
@@ -8,6 +9,7 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
+use App\ApiFilter\PetDtoFilter;
 use App\Entity\User;
 use App\Processor\PetCreateProcessor;
 use App\Processor\PetDeleteProcessor;
@@ -33,22 +35,23 @@ use Gedmo\Mapping\Annotation as Gedmo;
     operations: [
         new GetCollection(
             uriTemplate: '/pet',
-            normalizationContext: ['groups' => ['get', 'user:getShort']],
+            normalizationContext: ['groups' => [self::PET_GET, self::USER_SHORT_GET_GROUP]],
             provider: PetListProvider::class,
         ),
         new Get(
             uriTemplate: '/pet/{id}',
-            normalizationContext: ['groups' => ['get', 'user:getShort']],
+            normalizationContext: ['groups' => [self::PET_GET,  self::USER_SHORT_GET_GROUP]],
             provider: PetProvider::class,
         ),
         new Post(
             uriTemplate: '/pet',
+            normalizationContext: ['groups' => [self::PET_GET, self::USER_SHORT_GET_GROUP]],
             processor: PetCreateProcessor::class,
         ),
         new Put(
             uriTemplate: '/pet/{id}',
-            normalizationContext: ['groups' => ['get', 'user:getShort']],
-            denormalizationContext:['groups' => ['put']],
+            normalizationContext: ['groups' => [self::PET_GET, self::USER_SHORT_GET_GROUP]],
+            denormalizationContext:['groups' => [self::PET_PUT]],
             provider: PetProvider::class,
             processor: PetUpdateProcessor::class,
         ),
@@ -58,13 +61,20 @@ use Gedmo\Mapping\Annotation as Gedmo;
             processor: PetDeleteProcessor::class,
         ),
     ],
-    normalizationContext: ['groups' => ['read']],
-    denormalizationContext: ['groups' => ['write']],
+    normalizationContext: ['groups' => [self::PET_READ]],
+    denormalizationContext: ['groups' => [self::PET_WRITE]],
 )]
+#[ApiFilter(PetDtoFilter::class)]
 class PetDto
 {
+    const PET_GET = 'get';
+    const PET_PUT = 'put';
+    const PET_READ = 'read';
+    const PET_WRITE = 'write';
+    const USER_SHORT_GET_GROUP = 'user:getShort';
+
     #[ApiProperty(openapiContext: ['example' => 1])]
-    #[Groups(['read', 'get'])]
+    #[Groups([self::PET_READ, self::PET_GET])]
     private ?int $id = null;
 
     #[Assert\NotBlank(message: 'Empty field')]
@@ -76,7 +86,7 @@ class PetDto
         pattern: '/^[a-zA-Z0-9\s]*$/',
         message: 'Forbidden characters cant be entered'
     )]
-    #[Groups(['read', 'write', 'put', 'get'])]
+    #[Groups([self::PET_READ, self::PET_WRITE, self::PET_PUT, self::PET_GET])]
     #[ApiProperty(openapiContext: ['example' => 'Cat'])]
     private string $name;
 
@@ -89,26 +99,26 @@ class PetDto
         pattern: '/^[a-zA-Z0-9\s]*$/',
         message: 'Forbidden characters cant be entered'
     )]
-    #[Groups(['read', 'write', 'put', 'get'])]
+    #[Groups([self::PET_READ, self::PET_WRITE, self::PET_PUT, self::PET_GET])]
     #[ApiProperty(openapiContext: ['example' => 'Lazy'])]
     private string $description;
 
     #[Gedmo\Timestampable(on: 'create')]
-    #[Groups(['read', 'get'])]
+    #[Groups([self::PET_READ, self::PET_GET])]
     private ?DateTime $createdAt = null;
 
     #[Gedmo\Timestampable(on: 'create')]
-    #[Groups(['read', 'get'])]
+    #[Groups([self::PET_READ, self::PET_GET])]
     private DateTime $updatedAt;
 
     #[ApiProperty(openapiContext: ['example' => 1])]
-    #[Groups(['write', 'get'])]
+    #[Groups([self::PET_READ, self::PET_WRITE, self::PET_GET])]
     private int $createdBy;
 
-    #[Groups(['read', 'get'])]
+    #[Groups([self::PET_READ, self::PET_GET])]
     private ?int $updatedBy = null;
 
-    #[Groups(['read', 'write', 'get'])]
+    #[Groups([self::PET_READ, self::PET_WRITE, self::PET_GET])]
     private User $owner;
 
     public function getId(): ?int

@@ -2,6 +2,7 @@
 
 namespace App\Model\Dto;
 
+use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
@@ -9,6 +10,7 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
+use App\ApiFilter\UserDtoFilter;
 use App\Processor\UserCreateProcessor;
 use App\Processor\UserDeleteProcessor;
 use App\Processor\UserUpdateProccesor;
@@ -34,7 +36,7 @@ use Symfony\Component\Validator\Constraints as Assert;
         ),
         new Put(
             uriTemplate: '/user/{id}',
-            denormalizationContext:['groups' => ['user:put']],
+            denormalizationContext:['groups' => [self::USER_PUT]],
             provider: UserProvider::class,
             processor: UserUpdateProccesor::class,
         ),
@@ -44,12 +46,17 @@ use Symfony\Component\Validator\Constraints as Assert;
             processor: UserDeleteProcessor::class,
         ),
     ],
-    normalizationContext: ['groups' => ['user:read']],
-    denormalizationContext: ['groups' => ['user:write']],
+    normalizationContext: ['groups' => [self::USER_READ]],
+    denormalizationContext: ['groups' => [self::USER_WRITE]],
 )]
+#[ApiFilter(UserDtoFilter::class)]
 class UserDto
 {
-    #[Groups(['user:read', 'user:write', 'user:put'])]
+    const USER_READ = 'user:read';
+    const USER_WRITE = 'user:write';
+    const USER_PUT = 'user:put';
+
+    #[Groups([self::USER_READ, self::USER_WRITE, self::USER_PUT])]
     #[ApiProperty(openapiContext: ['example' => 1])]
     private ?int $id = null;
 
@@ -62,7 +69,7 @@ class UserDto
         pattern: '/^[a-zA-Z0-9\s]*$/',
         message: 'Forbidden characters cant be entered'
     )]
-    #[Groups(['user:read', 'user:write', 'user:put'])]
+    #[Groups([self::USER_READ, self::USER_WRITE, self::USER_PUT])]
     #[ApiProperty(openapiContext: ['example' => 'John'])]
     private string $name;
 
@@ -72,7 +79,7 @@ class UserDto
         maxMessage: 'Field cant be longer than 255'
     )]
     #[ApiProperty(openapiContext: ['example' => '123456'])]
-    #[Groups(['user:write', 'user:put'])]
+    #[Groups([self::USER_WRITE, self::USER_PUT])]
     private string $password;
 
     #[Assert\NotBlank(message: 'Empty field')]
@@ -80,7 +87,7 @@ class UserDto
         max: 255,
         maxMessage: 'Field cant be longer than 255'
     )]
-    #[Groups(['user:read', 'user:write', 'user:put'])]
+    #[Groups([self::USER_READ, self::USER_WRITE, self::USER_PUT])]
     #[ApiProperty(openapiContext: ['example' => 'example@mail.ru'])]
     private string $email;
 
@@ -96,7 +103,7 @@ class UserDto
      *     @OA\Items(type="string")
      * )
      */
-    #[Groups(['user:read', 'user:write', 'user:put'])]
+    #[Groups([self::USER_READ, self::USER_WRITE, self::USER_PUT])]
     #[ApiProperty(openapiContext: ['example' => ["ROLE_USER"]])]
     private array $roles;
 

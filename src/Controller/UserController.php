@@ -13,6 +13,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Nelmio\ApiDocBundle\Annotation\Model;
+use App\Model\Dto\UserCombinedDto;
 
 class UserController extends AbstractController
 {
@@ -29,7 +30,13 @@ class UserController extends AbstractController
       *          required=true,
       *          @OA\JsonContent(
       *              @OA\Property(property="name", type="string", default="John"),
-      *              @OA\Property(property="roles", type="string", default="guest"),
+      *              @OA\Property(property="password", type="string", default="123456"),
+      *              @OA\Property(property="email", type="string", default="yandex@mail.ru"),
+      *              @OA\Property(
+      *                  property="roles",
+      *                  type="array",
+      *                  @OA\Items(type="string", default="guest")
+      *              ),
       *          )
       *      ),
       * @OA\Response(
@@ -45,11 +52,13 @@ class UserController extends AbstractController
       */
     public function create(UserDto $userDto): JsonResponse
     {
-        $this->userUseCase->create($userDto);
+        $user = $this->userUseCase->create($userDto);
 
-        return $this->json([
-            $userDto,
-        ], Response::HTTP_CREATED);
+        return $this->json(
+            $user, Response::HTTP_OK,
+            [],
+            ['groups' => User::USER_GET_GROUP]
+        );
     }
 
     #[Route('/api/user/{id}', methods: 'GET')]
@@ -64,15 +73,54 @@ class UserController extends AbstractController
      */
     public function getOne(User $user): JsonResponse
     {
-        return $this->json($user, 200, [], ['groups' => 'user:get']);
+        return $this->json(
+            $user,
+            Response::HTTP_OK,
+            [],
+            ['groups' => User::USER_GET_GROUP]
+        );
     }
 
+    /**
+     * @ParamConverter("userCombinedDto", class=UserCombinedDto::class, converter="user_combined_param_converter")
+     * @OA\Tag(name="User")
+     * @OA\Get(
+     *      path="/api/user",
+     *      summary="Получить список пользователей",
+     *      tags={"User"},
+     *      @OA\Parameter(
+     *          name="page",
+     *          in="query",
+     *          description="Номер страницы",
+     *          required=false,
+     *          @OA\Schema(type="int", default="1")
+     *      ),
+     *     @OA\Response(
+     *          response=200,
+     *          description="Список пользователей",
+     *          @OA\JsonContent(
+     *              type="array",
+     *              @OA\Items(ref=@Model(type=\App\Model\Dto\UserCombinedDto::class))
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=400,
+     *          description="Неверные данные",
+     *          @OA\JsonContent(ref=@Model(type=\App\Model\ErrorHandling\ErrorResponse::class))
+     *      )
+     *  )
+     */
     #[Route('/api/user', methods: 'GET')]
-    public function getList(): JsonResponse
+    public function getList(UserCombinedDto $userCombinedDto): JsonResponse
     {
-        $users = $this->userUseCase->findAll();
+        $users = $this->userUseCase->getAllUsers($userCombinedDto);
 
-        return $this->json($users, 200, [], ['groups' => 'user:get']);
+        return $this->json(
+            $users,
+            Response::HTTP_OK,
+            [],
+            ['groups' => User::USER_GET_GROUP]
+        );
     }
 
     #[Route('/api/user/{id}', name: 'user_update_method', methods: 'PUT')]
@@ -97,7 +145,12 @@ class UserController extends AbstractController
     {
         $user = $this->userUseCase->update($id, $userDto);
 
-        return $this->json($user);
+        return $this->json(
+            $user,
+            Response::HTTP_OK,
+            [],
+            ['groups' => User::USER_GET_GROUP]
+        );
     }
 
     #[Route('/api/user/{id}', methods: 'DELETE')]

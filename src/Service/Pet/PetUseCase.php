@@ -28,13 +28,12 @@ class PetUseCase
         $currentUser = $this->security->getUser();
 
         if ($currentUser instanceof User) {
-            $user = $this->userRepository->find($currentUser->getId());
 
             $pet = new Pet();
             $pet->setName($petDto->getName());
             $pet->setDescription($petDto->getDescription());
-            $pet->setCreatedBy($user->getId());
-            $pet->setOwner($user);
+            $pet->setCreatedBy($currentUser->getId());
+            $pet->setOwner($currentUser);
 
             $this->entityManager->persist($pet);
             $this->entityManager->flush();

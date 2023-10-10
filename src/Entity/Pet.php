@@ -32,10 +32,12 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Entity(repositoryClass: PetRepository::class)]
 class Pet
 {
+    const PET_GET_GROUP = 'pet:get';
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups("pet:get")]
+    #[Groups(self::PET_GET_GROUP)]
     private ?int $id = null;
 
     #[ORM\Column(type: Types::TEXT)]
@@ -48,7 +50,7 @@ class Pet
         pattern: '/^[a-zA-Z0-9\s]*$/',
         message: 'Forbidden characters cannot be entered'
     )]
-    #[Groups("pet:get")]
+    #[Groups(self::PET_GET_GROUP)]
     private string $name;
 
     #[ORM\Column(type: Types::TEXT)]
@@ -61,29 +63,31 @@ class Pet
         pattern: '/^[a-zA-Z0-9\s]*$/',
         message: 'Forbidden characters cannot be entered'
     )]
-    #[Groups("pet:get")]
+    #[Groups(self::PET_GET_GROUP)]
     private string $description;
 
     #[ORM\Column(name: 'created_at', type: 'datetime', nullable: false)]
     #[Gedmo\Timestampable(on: 'create')]
+    #[Groups(self::PET_GET_GROUP)]
     private DateTime $createdAt;
 
     #[ORM\Column(name: 'updated_at', type: 'datetime', nullable: false)]
     #[Gedmo\Timestampable(on: 'update')]
-    #[Groups("pet:get")]
+    #[Groups(self::PET_GET_GROUP)]
     private DateTime $updatedAt;
 
     #[ORM\Column(type: 'integer', nullable: false)]
-    #[Groups("pet:get")]
+    #[Groups(self::PET_GET_GROUP)]
     private int $createdBy;
 
     #[ORM\Column(type: 'integer', nullable: true)]
-    #[Groups("pet:get")]
+    #[Groups(self::PET_GET_GROUP)]
+    //    #[Gedmo\Blameable(on: 'update', field: 'updateBy', value: )]
     private ?int $updatedBy = null;
 
     #[ORM\ManyToOne(inversedBy: 'pet', fetch: 'EAGER' )]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups("pet:get")]
+    #[Groups(self::PET_GET_GROUP)]
     private User $owner;
 
     public function getId(): ?int

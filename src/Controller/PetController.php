@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Pet;
+use App\Entity\User;
 use App\Exception\EntityNotFoundException;
 use App\Model\Dto\PetDto;
 use App\Model\Dto\PetCombinedDto;
@@ -22,7 +23,7 @@ class PetController extends AbstractController
     )
     {}
 
-    #[Route('/api/pet/add', methods: ['POST'])]
+    #[Route('/api/pet', methods: ['POST'])]
     /**
      * @ParamConverter("petDto", class=PetDto::class, converter="pet_param_converter")
      * @OA\Tag(name="Pet")
@@ -45,13 +46,16 @@ class PetController extends AbstractController
      *       @OA\JsonContent(ref=@Model(type=\App\Model\ErrorHandling\ErrorResponse::class))
      *  )
      */
-    public function create(PetDto $petDto): Response
+    public function create(PetDto $petDto): JsonResponse
     {
-        $this->petUseCase->create($petDto);
+       $pet = $this->petUseCase->create($petDto);
 
-        return $this->json([
-            $petDto,
-        ], Response::HTTP_CREATED);
+        return $this->json(
+            $pet,
+            Response::HTTP_CREATED,
+            [],
+            ['groups' => [Pet::PET_GET_GROUP, User::USER_SHORT_GET_GROUP]]
+        );
     }
 
     #[Route('/api/pet/{id}', methods: 'GET')]
@@ -66,7 +70,12 @@ class PetController extends AbstractController
      */
     public function getOne(Pet $pet): JsonResponse
     {
-        return $this->json($pet, 200, [], ['groups' => ['pet:get', 'user:getShort']]);
+        return $this->json(
+            $pet,
+            Response::HTTP_OK,
+            [],
+            ['groups' => [Pet::PET_GET_GROUP, User::USER_SHORT_GET_GROUP]]
+        );
     }
 
     /**
@@ -121,10 +130,15 @@ class PetController extends AbstractController
      * @param PetCombinedDto $petCombinedDto
      * @return JsonResponse
      */
-    #[Route('/api/pets', methods: ['GET'])]
+    #[Route('/api/pet', methods: ['GET'])]
     public function getByFilters(PetCombinedDto $petCombinedDto): JsonResponse
     {
-       return $this->json($this->petUseCase->findByFilter($petCombinedDto), 200, [], ['groups' => ['pet:get', 'user:getShort']]);
+       return $this->json(
+           $this->petUseCase->findByFilter($petCombinedDto),
+           Response::HTTP_OK,
+           [],
+           ['groups' => [Pet::PET_GET_GROUP, User::USER_SHORT_GET_GROUP]]
+       );
     }
 
     #[Route('/api/pet/{id}', name: 'update_method', methods: 'PUT')]
@@ -149,7 +163,12 @@ class PetController extends AbstractController
     {
         $pet = $this->petUseCase->update($id, $petDto);
 
-        return $this->json($pet);
+        return $this->json(
+            $pet,
+            Response::HTTP_OK,
+            [],
+            ['groups' => [Pet::PET_GET_GROUP, User::USER_SHORT_GET_GROUP]]
+        );
     }
 
     #[Route('/api/pet/{id}', name:'api_delete',  methods: 'DELETE')]

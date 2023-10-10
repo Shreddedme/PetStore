@@ -4,9 +4,11 @@ namespace App\Service\User;
 
 use App\Entity\User;
 use App\Exception\EntityNotFoundException;
+use App\Model\Dto\UserCombinedDto;
 use App\Model\Dto\UserDto;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\Tools\Pagination\Paginator;
 
 class UserUseCase
 {
@@ -44,9 +46,9 @@ class UserUseCase
         return $user;
     }
 
-    public function findAll(): array
+    public function getAllUsers(UserCombinedDto $userCombinedDto): Paginator
     {
-        return $this->userRepository->findAll();
+        return $this->userRepository->getAllUsers($userCombinedDto);
     }
 
     /**

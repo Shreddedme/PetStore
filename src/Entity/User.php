@@ -34,10 +34,13 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Table(name: '`user`')]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
+    const USER_GET_GROUP = 'user:get';
+    const USER_SHORT_GET_GROUP = 'user:getShort';
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups("user:get")]
+    #[Groups(self::USER_GET_GROUP)]
     private ?int $id = null;
 
     #[ORM\Column(type: Types::TEXT)]
@@ -50,7 +53,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         pattern: '/^[a-zA-Z0-9\s]*$/',
         message: 'Forbidden characters cannot be entered'
     )]
-    #[Groups(["user:get", "user:getShort"])]
+    #[Groups([self::USER_GET_GROUP, self::USER_SHORT_GET_GROUP])]
     private string $name;
 
     /**
@@ -60,21 +63,21 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private string $password;
 
     #[ORM\Column(length: 180, unique: true)]
-    #[Groups("user:get")]
+    #[Groups(self::USER_GET_GROUP)]
     private string $email;
 
     #[ORM\Column]
-    #[Groups("user:get")]
+    #[Groups(self::USER_GET_GROUP)]
     private array $roles = [];
 
     #[ORM\Column(name: 'created_at', type: 'datetime', nullable: false)]
     #[Gedmo\Timestampable(on: 'create')]
-    #[Groups("user:get")]
+    #[Groups(self::USER_GET_GROUP)]
     private DateTime $createdAt;
 
     #[ORM\Column(name: 'updated_at', type: 'datetime', nullable: false)]
     #[Gedmo\Timestampable(on: 'update')]
-    #[Groups("user:get")]
+    #[Groups(self::USER_GET_GROUP)]
     private DateTime $updatedAt;
 
     #[ORM\Column(type: 'integer', nullable: true)]
