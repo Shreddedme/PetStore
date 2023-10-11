@@ -2,7 +2,9 @@
 
 namespace App\Model\Dto;
 
+use ApiPlatform\Api\FilterInterface;
 use OpenApi\Annotations as OA;
+use Symfony\Component\PropertyInfo\Type;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -12,7 +14,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *     @OA\Property(property="page", type="integer", default=1),
  * )
  */
-class UserCombinedDto
+class UserCombinedDto implements FilterInterface
 {
     public const USERCOUNT = 2;
 
@@ -23,7 +25,7 @@ class UserCombinedDto
     #[Assert\Positive(
         message: 'Page number should be positive'
     )]
-    private ?string $page = null;
+    private ?int $page = null;
 
     #[Assert\Length(
         max: 255,
@@ -55,4 +57,15 @@ class UserCombinedDto
     }
 
 
+    public function getDescription(string $resourceClass): array
+    {
+        return [
+                'page' => [
+                    'property' => 'page',
+                    'type' => Type::BUILTIN_TYPE_INT,
+                    'description' => 'Номер страницы',
+                    'required' => false,
+                ],
+        ];
+    }
 }

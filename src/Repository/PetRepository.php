@@ -49,18 +49,18 @@ class PetRepository extends ServiceEntityRepository
                 ->setParameter('owner', '%' . $petCombinedDto->getOwner() . '%');
         }
 
-        if ($petCombinedDto->getDescription() !== null) {
+        if ($petCombinedDto->getPetDescription() !== null) {
             $queryBuilder
                 ->andWhere('LOWER(p.description) LIKE LOWER(:description)')
-                ->setParameter('description', '%' . $petCombinedDto->getDescription() . '%');
+                ->setParameter('description', '%' . $petCombinedDto->getPetDescription() . '%');
         }
 
         $query = $queryBuilder->getQuery();
 
-        $firstResult = ($page - 1) * $petCombinedDto->getCount();
+        $firstResult = ($page - 1) * $petCombinedDto->getPerPage();
 
         $query->setFirstResult($firstResult)
-            ->setMaxResults($petCombinedDto->getCount())
+            ->setMaxResults($petCombinedDto->getPerPage())
             ->enableResultCache(self::CACHE_EXPIREDTIME, 'filters_id');
 
         return new Paginator($query, true);

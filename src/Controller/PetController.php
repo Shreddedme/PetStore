@@ -45,16 +45,15 @@ class PetController extends AbstractController
      *       description="Неверные данные",
      *       @OA\JsonContent(ref=@Model(type=\App\Model\ErrorHandling\ErrorResponse::class))
      *  )
+     * @throws EntityNotFoundException
      */
     public function create(PetDto $petDto): JsonResponse
     {
-       $pet = $this->petUseCase->create($petDto);
-
         return $this->json(
-            $pet,
+            $this->petUseCase->create($petDto),
             Response::HTTP_CREATED,
             [],
-            ['groups' => [Pet::PET_GET_GROUP, User::USER_SHORT_GET_GROUP]]
+            ['groups' => [PetDto::PET_GET, PetDto::USER_SHORT_GET_GROUP]]
         );
     }
 
@@ -65,16 +64,16 @@ class PetController extends AbstractController
      * @OA\Response(
      *           response=200,
      *           description="Получили питомца",
-     *           @OA\JsonContent(ref=@Model(type=\App\Entity\Pet::class))
+     *           @OA\JsonContent(ref=@Model(type=\App\Model\Dto\PetDto::class))
      *       )
      */
     public function getOne(Pet $pet): JsonResponse
     {
         return $this->json(
-            $pet,
+            $this->petUseCase->getOne($pet),
             Response::HTTP_OK,
             [],
-            ['groups' => [Pet::PET_GET_GROUP, User::USER_SHORT_GET_GROUP]]
+            ['groups' => [PetDto::PET_GET, PetDto::USER_SHORT_GET_GROUP]]
         );
     }
 
@@ -155,19 +154,17 @@ class PetController extends AbstractController
      * @OA\Response(
      *           response=200,
      *           description="Питомец обновлен",
-     *           @OA\JsonContent(ref=@Model(type=\App\Entity\Pet::class))
+     *           @OA\JsonContent(ref=@Model(type=\App\Model\Dto\PetDto::class))
      *       )
      * @throws EntityNotFoundException
      */
     public function update(PetDto $petDto, int $id): JsonResponse
     {
-        $pet = $this->petUseCase->update($id, $petDto);
-
         return $this->json(
-            $pet,
+            $this->petUseCase->update($id, $petDto),
             Response::HTTP_OK,
             [],
-            ['groups' => [Pet::PET_GET_GROUP, User::USER_SHORT_GET_GROUP]]
+            ['groups' => [PetDto::PET_GET, PetDto::USER_SHORT_GET_GROUP]]
         );
     }
 

@@ -9,7 +9,6 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
-use App\ApiFilter\PetDtoFilter;
 use App\Entity\User;
 use App\Processor\PetCreateProcessor;
 use App\Processor\PetDeleteProcessor;
@@ -64,7 +63,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
     normalizationContext: ['groups' => [self::PET_READ]],
     denormalizationContext: ['groups' => [self::PET_WRITE]],
 )]
-#[ApiFilter(PetDtoFilter::class)]
+#[ApiFilter(PetCombinedDto::class)]
 class PetDto
 {
     const PET_GET = 'get';
@@ -126,9 +125,11 @@ class PetDto
         return $this->id;
     }
 
-    public function setId(?int $id): void
+    public function setId(?int $id): self
     {
         $this->id = $id;
+
+        return $this;
     }
 
 
@@ -137,9 +138,11 @@ class PetDto
         return $this->name;
     }
 
-    public function setName(string $name): void
+    public function setName(string $name): self
     {
         $this->name = $name;
+
+        return $this;
     }
 
     public function getDescription(): string
@@ -147,9 +150,11 @@ class PetDto
         return $this->description;
     }
 
-    public function setDescription(string $description): void
+    public function setDescription(string $description): self
     {
         $this->description = $description;
+
+        return $this;
     }
 
     public function getCreatedAt(): ?DateTime
@@ -157,9 +162,11 @@ class PetDto
         return $this->createdAt;
     }
 
-    public function setCreatedAt(?DateTime $createdAt): void
+    public function setCreatedAt(?DateTime $createdAt): self
     {
         $this->createdAt = $createdAt;
+
+        return $this;
     }
 
     public function getUpdatedAt(): DateTime
@@ -167,9 +174,11 @@ class PetDto
         return $this->updatedAt;
     }
 
-    public function setUpdatedAt(DateTime $updatedAt): void
+    public function setUpdatedAt(DateTime $updatedAt): self
     {
         $this->updatedAt = $updatedAt;
+
+        return $this;
     }
 
     public function getCreatedBy(): int
@@ -177,9 +186,11 @@ class PetDto
         return $this->createdBy;
     }
 
-    public function setCreatedBy(int $createdBy): void
+    public function setCreatedBy(int $createdBy): self
     {
         $this->createdBy = $createdBy;
+
+        return $this;
     }
 
     public function getUpdatedBy(): ?int
@@ -187,9 +198,11 @@ class PetDto
         return $this->updatedBy;
     }
 
-    public function setUpdatedBy(?int $updatedBy): void
+    public function setUpdatedBy(?int $updatedBy): self
     {
         $this->updatedBy = $updatedBy;
+
+        return $this;
     }
 
     public function getOwner(): User
@@ -197,8 +210,10 @@ class PetDto
         return $this->owner;
     }
 
-    public function setOwner(User $owner): void
+    public function setOwner(User $owner): self
     {
         $this->owner = $owner;
+
+        return $this;
     }
 }

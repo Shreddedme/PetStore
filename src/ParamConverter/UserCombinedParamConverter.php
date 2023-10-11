@@ -26,8 +26,9 @@ class UserCombinedParamConverter implements ParamConverterInterface
      */
     public function apply(Request $request, ParamConverter $configuration)
     {
+        $parameters = $request->query->all();
+
         try {
-            $parameters = $request->query->all();
             $userCombinedDto = $this->serializer->denormalize($parameters, UserCombinedDto::class, null, [AbstractObjectNormalizer::DISABLE_TYPE_ENFORCEMENT => true]);
         } catch (NotEncodableValueException $e) {
             throw new BadRequestHttpException('Invalid format', $e);

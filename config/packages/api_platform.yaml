@@ -12,5 +12,4 @@ api_platform:
             vary: ['Content-Type', 'Authorization', 'Origin']
         extra_properties:
             standard_put: true
-        pagination_client_items_per_page: true
         pagination_items_per_page: 10

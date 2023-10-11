@@ -52,12 +52,11 @@ class UserController extends AbstractController
       */
     public function create(UserDto $userDto): JsonResponse
     {
-        $user = $this->userUseCase->create($userDto);
-
         return $this->json(
-            $user, Response::HTTP_OK,
+            $this->userUseCase->create($userDto),
+            Response::HTTP_OK,
             [],
-            ['groups' => User::USER_GET_GROUP]
+            ['groups' => UserDto::USER_READ]
         );
     }
 
@@ -68,16 +67,16 @@ class UserController extends AbstractController
      * @OA\Response(
      *           response=200,
      *           description="Получили пользователя",
-     *           @OA\JsonContent(ref=@Model(type=\App\Entity\User::class))
+     *           @OA\JsonContent(ref=@Model(type=\App\Model\Dto\UserDto::class))
      * )
      */
     public function getOne(User $user): JsonResponse
     {
         return $this->json(
-            $user,
+            $this->userUseCase->getOne($user),
             Response::HTTP_OK,
             [],
-            ['groups' => User::USER_GET_GROUP]
+            ['groups' => UserDto::USER_READ]
         );
     }
 
@@ -113,10 +112,8 @@ class UserController extends AbstractController
     #[Route('/api/user', methods: 'GET')]
     public function getList(UserCombinedDto $userCombinedDto): JsonResponse
     {
-        $users = $this->userUseCase->getAllUsers($userCombinedDto);
-
         return $this->json(
-            $users,
+            $this->userUseCase->getAllUsers($userCombinedDto),
             Response::HTTP_OK,
             [],
             ['groups' => User::USER_GET_GROUP]
@@ -137,19 +134,17 @@ class UserController extends AbstractController
      * @OA\Response(
      *           response=200,
      *           description="Пользователь обновлен",
-     *           @OA\JsonContent(ref=@Model(type=\App\Entity\User::class))
+     *           @OA\JsonContent(ref=@Model(type=\App\Model\Dto\UserDto::class))
      *       )
      * @throws EntityNotFoundException
      */
     public function update(UserDto $userDto, int $id): JsonResponse
     {
-        $user = $this->userUseCase->update($id, $userDto);
-
         return $this->json(
-            $user,
+            $this->userUseCase->update($id, $userDto),
             Response::HTTP_OK,
             [],
-            ['groups' => User::USER_GET_GROUP]
+            ['groups' => UserDto::USER_READ]
         );
     }
 

@@ -132,9 +132,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->createdAt;
     }
 
-    public function setCreatedAt(DateTime $createdAt): void
+    public function setCreatedAt(DateTime $createdAt): self
     {
         $this->createdAt = $createdAt;
+
+        return $this;
     }
 
     public function getUpdatedAt(): DateTime
@@ -142,9 +144,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->updatedAt;
     }
 
-    public function setUpdatedAt(DateTime $updatedAt): void
+    public function setUpdatedAt(DateTime $updatedAt): self
     {
         $this->updatedAt = $updatedAt;
+
+        return $this;
     }
 
     public function getCreatedBy(): ?int
@@ -152,9 +156,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->createdBy;
     }
 
-    public function setCreatedBy(?int $createdBy): void
+    public function setCreatedBy(?int $createdBy): self
     {
         $this->createdBy = $createdBy;
+
+        return $this;
     }
 
     public function getUpdatedBy(): ?int
@@ -162,9 +168,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->updatedBy;
     }
 
-    public function setUpdatedBy(?int $updatedBy): void
+    public function setUpdatedBy(?int $updatedBy): self
     {
         $this->updatedBy = $updatedBy;
+
+        return $this;
     }
 
     /**
@@ -205,9 +213,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->password;
     }
 
-    public function setPassword(string $password): void
+    public function setPassword(string $password): self
     {
         $this->password = $password;
+
+        return $this;
     }
 
     public function getEmail(): string
@@ -215,9 +225,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->email;
     }
 
-    public function setEmail(string $email): void
+    public function setEmail(string $email): self
     {
         $this->email = $email;
+
+        return $this;
     }
 
     public function eraseCredentials()

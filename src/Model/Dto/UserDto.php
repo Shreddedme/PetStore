@@ -10,7 +10,6 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
-use App\ApiFilter\UserDtoFilter;
 use App\Processor\UserCreateProcessor;
 use App\Processor\UserDeleteProcessor;
 use App\Processor\UserUpdateProccesor;
@@ -49,7 +48,7 @@ use Symfony\Component\Validator\Constraints as Assert;
     normalizationContext: ['groups' => [self::USER_READ]],
     denormalizationContext: ['groups' => [self::USER_WRITE]],
 )]
-#[ApiFilter(UserDtoFilter::class)]
+#[ApiFilter(UserCombinedDto::class)]
 class UserDto
 {
     const USER_READ = 'user:read';
@@ -112,9 +111,11 @@ class UserDto
         return $this->id;
     }
 
-    public function setId(?int $id): void
+    public function setId(?int $id): self
     {
         $this->id = $id;
+
+        return $this;
     }
 
     public function getName(): string
@@ -122,9 +123,11 @@ class UserDto
         return $this->name;
     }
 
-    public function setName(string $name): void
+    public function setName(string $name): self
     {
         $this->name = $name;
+
+        return $this;
     }
 
     public function getRoles(): array
@@ -132,9 +135,11 @@ class UserDto
         return $this->roles;
     }
 
-    public function setRoles(array $roles): void
+    public function setRoles(array $roles): self
     {
         $this->roles = $roles;
+
+        return $this;
     }
 
     public function getPassword(): string
@@ -142,9 +147,11 @@ class UserDto
         return $this->password;
     }
 
-    public function setPassword(string $password): void
+    public function setPassword(string $password): self
     {
         $this->password = $password;
+
+        return $this;
     }
 
     public function getEmail(): string
@@ -152,8 +159,10 @@ class UserDto
         return $this->email;
     }
 
-    public function setEmail(string $email): void
+    public function setEmail(string $email): self
     {
         $this->email = $email;
+
+        return $this;
     }
 }

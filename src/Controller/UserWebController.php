@@ -4,24 +4,20 @@ namespace App\Controller;
 
 use App\Enum\ApiGroupsEnum;
 use App\Exception\EntityNotFoundException;
+use App\Model\Dto\UserCombinedDto;
 use App\Model\UserForm\UserFormType;
 use App\Service\User\UserUseCase;
-use Psr\Cache\InvalidArgumentException;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Contracts\Cache\CacheInterface;
-use Symfony\Contracts\Cache\ItemInterface;
 
 class UserWebController extends AbstractController
 {
-    const CACHE_KEY = 'search_user_list_cache';
-    const EXPIREDTIME = 3600;
-
     public function __construct(
         private UserUseCase $userUseCase,
-        private CacheInterface $cache,
+
     )
     {}
 
@@ -49,19 +45,19 @@ class UserWebController extends AbstractController
     }
 
     /**
-     * @throws InvalidArgumentException
+     * @ParamConverter("userCombinedDto", class=UserCombinedDto::class, converter="user_combined_param_converter")
+     * @throws \Exception
      */
-    #[Route('/user', name: 'app_user_list')]
-    public function getList(): Response
+    #[Route('/user/search', name: 'app_user_list')]
+    public function getList(UserCombinedDto $userCombinedDto): Response
     {
-        $cachedUsers = $this->cache->get(self::CACHE_KEY, function (ItemInterface $item) {
-            $item->expiresAfter(self::EXPIREDTIME);
+        $paginator = $this->userUseCase->getAllUsers($userCombinedDto);
+        $users = $paginator->getIterator();
 
-            return $this->userUseCase->findAll();
-        });
-
-        return $this->render('user_web/getListUserBootstrap.html.twig', [
-            'users' => $cachedUsers,
+        return $this->render('user_web/user_web_search/userListSearch.html.twig', [
+            'users' => $users,
+            'paginator' => $paginator,
+            'userCombinedDto' => $userCombinedDto,
         ]);
     }
 

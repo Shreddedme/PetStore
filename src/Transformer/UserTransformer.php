@@ -24,20 +24,23 @@ class UserTransformer
         } else {
             $user = new User();
         }
-        $user->setName($userDto->getName());
-        $user->setEmail($userDto->getEmail());
-        $user->setPassword($userDto->getPassword());
-        $user->setRoles($userDto->getRoles());
+        $user
+            ->setName($userDto->getName())
+            ->setEmail($userDto->getEmail())
+            ->setPassword($userDto->getPassword())
+            ->setRoles($userDto->getRoles());
 
         return $user;
     }
 
-    public function toDto(User $user, UserDto $userDto): UserDto
+    public function toDto(User $user): UserDto
     {
-        $userDto->setId($user->getId());
-        $userDto->setName($user->getName());
-        $userDto->setEmail($user->getEmail());
-        $userDto->setRoles($user->getRoles());
+        $userDto = new UserDto();
+        $userDto
+            ->setId($user->getId())
+            ->setName($user->getName())
+            ->setEmail($user->getEmail())
+            ->setRoles($user->getRoles());
 
         return $userDto;
     }

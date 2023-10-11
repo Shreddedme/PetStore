@@ -4,10 +4,8 @@ namespace App\Processor;
 
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
-use App\Entity\User;
 use App\Exception\EntityNotFoundException;
 use App\Model\Dto\UserDto;
-use App\Repository\UserRepository;
 use App\Transformer\UserTransformer;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -31,7 +29,7 @@ class UserUpdateProccesor implements ProcessorInterface
         $this->entityManager->persist($user);
         $this->entityManager->flush();
 
-        return $this->userTransformer->toDto($user, $data);
+        return $this->userTransformer->toDto($user);
     }
 
 

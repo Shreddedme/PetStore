@@ -4,13 +4,14 @@ namespace App\Provider;
 
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
-use App\Model\Dto\PetDto;
 use App\Repository\PetRepository;
+use App\Transformer\PetTransformer;
 
 class PetProvider implements ProviderInterface
 {
     public function __construct(
         private PetRepository $petRepository,
+        private PetTransformer $petTransformer,
     )
     {}
 
@@ -18,16 +19,6 @@ class PetProvider implements ProviderInterface
     {
         $pet = $this->petRepository->find($uriVariables['id']);
 
-        $petDto = new PetDto();
-        $petDto->setId($pet->getId());
-        $petDto->setName($pet->getName());
-        $petDto->setDescription($pet->getDescription());
-        $petDto->setCreatedAt($pet->getCreatedAt());
-        $petDto->setUpdatedAt($pet->getUpdatedAt());
-        $petDto->setUpdatedBy($pet->getUpdatedBy());
-        $petDto->setCreatedBy($pet->getCreatedBy());
-        $petDto->setOwner($pet->getOwner());
-
-        return $petDto;
+        return $this->petTransformer->toDto($pet);
     }
 }

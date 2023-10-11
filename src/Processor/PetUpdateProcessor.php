@@ -4,11 +4,9 @@ namespace App\Processor;
 
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
-use App\Entity\Pet;
 use App\Entity\User;
 use App\Exception\EntityNotFoundException;
 use App\Model\Dto\PetDto;
-use App\Repository\PetRepository;
 use App\Transformer\PetTransformer;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
@@ -39,6 +37,6 @@ class PetUpdateProcessor implements ProcessorInterface
         $this->entityManager->persist($pet);
         $this->entityManager->flush();
 
-        return $this->petTransformer->toDto($data, $pet);
+        return $this->petTransformer->toDto($pet);
     }
 }

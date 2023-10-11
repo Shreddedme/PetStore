@@ -8,7 +8,7 @@ use App\Exception\EntityNotFoundException;
 use App\Model\Dto\PetCombinedDto;
 use App\Model\Dto\PetDto;
 use App\Repository\PetRepository;
-use App\Repository\UserRepository;
+use App\Transformer\PetTransformer;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Tools\Pagination\Paginator;
 use Symfony\Bundle\SecurityBundle\Security;
@@ -18,27 +18,25 @@ class PetUseCase
     public function __construct(
         private EntityManagerInterface $entityManager,
         private PetRepository $petRepository,
-        private UserRepository $userRepository,
         private Security $security,
+        private PetTransformer $petTransformer,
     )
     {}
 
-    public function create(PetDto $petDto): Pet
+    /**
+     * @throws EntityNotFoundException
+     */
+    public function create(PetDto $petDto): PetDto
     {
         $currentUser = $this->security->getUser();
 
         if ($currentUser instanceof User) {
-
-            $pet = new Pet();
-            $pet->setName($petDto->getName());
-            $pet->setDescription($petDto->getDescription());
-            $pet->setCreatedBy($currentUser->getId());
-            $pet->setOwner($currentUser);
+            $pet = $this->petTransformer->toEntity(null, $petDto, $currentUser);
 
             $this->entityManager->persist($pet);
             $this->entityManager->flush();
 
-            return $pet;
+            return $this->petTransformer->toDto($pet);
         }
 
         throw new \LogicException('Current user is not authenticated');
@@ -58,37 +56,30 @@ class PetUseCase
         return $pet;
     }
 
+    public function getOne(Pet $pet): PetDto
+    {
+        return $this->petTransformer->toDto($pet);
+    }
 
     public function findByFilter(PetCombinedDto $petCombinedDto): Paginator
     {
         return $this->petRepository->findByFilter($petCombinedDto);
     }
 
-
     /**
      * @throws EntityNotFoundException
      */
-    public function update(int $id, PetDto $petDto): Pet
+    public function update(int $id, PetDto $petDto): PetDto
     {
-        $pet = $this->find($id);
-
         $currentUser = $this->security->getUser();
 
         if ($currentUser instanceof User) {
-            $user = $this->userRepository->find($currentUser->getId());
-
-            if (!$user) {
-                throw new EntityNotFoundException(User::class, $id);
-            }
-
-            $pet->setName($petDto->getName());
-            $pet->setDescription($petDto->getDescription());
-            $pet->setUpdatedBy($user->getId());
+           $pet = $this->petTransformer->toEntity($id, $petDto, $currentUser);
 
             $this->entityManager->persist($pet);
             $this->entityManager->flush();
 
-            return $pet;
+            return $this->petTransformer->toDto($pet);
         }
 
         throw new \LogicException('Current user is not authenticated');

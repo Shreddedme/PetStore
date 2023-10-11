@@ -28,6 +28,6 @@ class UserCreateProcessor implements ProcessorInterface
         $this->entityManager->persist($user);
         $this->entityManager->flush();
 
-        return $this->userTransformer->toDto($user, $data);
+        return $this->userTransformer->toDto($user);
     }
 }

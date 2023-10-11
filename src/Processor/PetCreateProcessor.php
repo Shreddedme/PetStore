@@ -35,6 +35,6 @@ class PetCreateProcessor implements ProcessorInterface
         $this->entityManager->persist($pet);
         $this->entityManager->flush();
 
-        return $this->petTransformer->toDto($data, $pet);
+        return $this->petTransformer->toDto($pet);
     }
 }

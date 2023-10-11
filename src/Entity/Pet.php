@@ -32,7 +32,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Entity(repositoryClass: PetRepository::class)]
 class Pet
 {
-    const PET_GET_GROUP = 'pet:get';
+    public const PET_GET_GROUP = 'pet:get';
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -82,7 +82,6 @@ class Pet
 
     #[ORM\Column(type: 'integer', nullable: true)]
     #[Groups(self::PET_GET_GROUP)]
-    //    #[Gedmo\Blameable(on: 'update', field: 'updateBy', value: )]
     private ?int $updatedBy = null;
 
     #[ORM\ManyToOne(inversedBy: 'pet', fetch: 'EAGER' )]
@@ -124,9 +123,11 @@ class Pet
         return $this->createdAt;
     }
 
-    public function setCreatedAt(DateTime $createdAt): void
+    public function setCreatedAt(DateTime $createdAt): self
     {
         $this->createdAt = $createdAt;
+
+        return $this;
     }
 
     public function getUpdatedAt(): DateTime
@@ -134,9 +135,11 @@ class Pet
         return $this->updatedAt;
     }
 
-    public function setUpdatedAt(DateTime $updatedAt): void
+    public function setUpdatedAt(DateTime $updatedAt): self
     {
         $this->updatedAt = $updatedAt;
+
+        return $this;
     }
 
     public function getCreatedBy(): int
@@ -144,9 +147,11 @@ class Pet
         return $this->createdBy;
     }
 
-    public function setCreatedBy(int $createdBy): void
+    public function setCreatedBy(int $createdBy): self
     {
         $this->createdBy = $createdBy;
+
+        return $this;
     }
 
     public function getUpdatedBy(): ?int
@@ -154,9 +159,11 @@ class Pet
         return $this->updatedBy;
     }
 
-    public function setUpdatedBy(?int $updatedBy): void
+    public function setUpdatedBy(?int $updatedBy): self
     {
         $this->updatedBy = $updatedBy;
+
+        return $this;
     }
 
     public function getOwner(): ?User

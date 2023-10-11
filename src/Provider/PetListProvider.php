@@ -6,8 +6,8 @@ use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
 use App\Exception\ValidationException;
 use App\Model\Dto\PetCombinedDto;
-use App\Model\Dto\PetDto;
 use App\Repository\PetRepository;
+use App\Transformer\PetTransformer;
 use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -18,6 +18,7 @@ class PetListProvider implements ProviderInterface
         private PetRepository $petRepository,
         private SerializerInterface $serializer,
         private ValidatorInterface $validator,
+        private PetTransformer $petTransformer,
     )
     {}
 
@@ -39,17 +40,9 @@ class PetListProvider implements ProviderInterface
         $petDtos = [];
 
         foreach ($pets as $pet) {
-            $petDto = new PetDto();
-            $petDto->setId($pet->getId());
-            $petDto->setName($pet->getName());
-            $petDto->setDescription($pet->getDescription());
-            $petDto->setCreatedAt($pet->getCreatedAt());
-            $petDto->setUpdatedAt($pet->getUpdatedAt());
-            $petDto->setCreatedBy($pet->getCreatedBy());
-            $petDto->setUpdatedBy($pet->getUpdatedBy());
-            $petDto->setOwner($pet->getOwner());
-            $petDtos[] = $petDto;
+            $petDtos[] = $this->petTransformer->toDto($pet);
         }
+
         return $petDtos;
     }
 }

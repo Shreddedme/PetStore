@@ -7,6 +7,7 @@ use App\Exception\EntityNotFoundException;
 use App\Model\Dto\UserCombinedDto;
 use App\Model\Dto\UserDto;
 use App\Repository\UserRepository;
+use App\Transformer\UserTransformer;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Tools\Pagination\Paginator;
 
@@ -15,21 +16,21 @@ class UserUseCase
     public function __construct(
         private EntityManagerInterface $entityManager,
         private UserRepository $userRepository,
+        private UserTransformer $userTransformer,
     )
     {}
 
-    public function create(UserDto $userDto): User
+    /**
+     * @throws EntityNotFoundException
+     */
+    public function create(UserDto $userDto): UserDto
     {
-        $user = new User();
-        $user->setName($userDto->getName());
-        $user->setEmail($userDto->getEmail());
-        $user->setPassword($userDto->getPassword());
-        $user->setRoles($userDto->getRoles());
+        $user = $this->userTransformer->toEntity(null, $userDto);
 
         $this->entityManager->persist($user);
         $this->entityManager->flush();
 
-        return $user;
+        return $this->userTransformer->toDto($user);
     }
 
     /**
@@ -46,6 +47,11 @@ class UserUseCase
         return $user;
     }
 
+    public function getOne(User $user): UserDto
+    {
+       return $this->userTransformer->toDto($user);
+    }
+
     public function getAllUsers(UserCombinedDto $userCombinedDto): Paginator
     {
         return $this->userRepository->getAllUsers($userCombinedDto);
@@ -54,17 +60,14 @@ class UserUseCase
     /**
      * @throws EntityNotFoundException
      */
-    public function update(int $id, UserDto $userDto): User
+    public function update(int $id, UserDto $userDto): UserDto
     {
-        $user = $this->find($id);
-
-        $user->setName($userDto->getName());
-        $user->setRoles($userDto->getRoles());
+        $user = $this->userTransformer->toEntity($id, $userDto);
 
         $this->entityManager->persist($user);
         $this->entityManager->flush();
 
-        return $user;
+        return $this->userTransformer->toDto($user);
     }
 
     public function delete(int $id): void

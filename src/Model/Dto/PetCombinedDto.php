@@ -2,7 +2,9 @@
 
 namespace App\Model\Dto;
 
+use ApiPlatform\Api\FilterInterface;
 use OpenApi\Annotations as OA;
+use Symfony\Component\PropertyInfo\Type;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -10,15 +12,15 @@ use Symfony\Component\Validator\Constraints as Assert;
  *     title="PetCombinedDto",
  *     description="Питомец",
  *     @OA\Property(property="name", type="string", default="Cat"),
- *     @OA\Property(property="description", type="string", default="Very lazy"),
+ *     @OA\Property(property="petDescription", type="string", default="Very lazy"),
  *     @OA\Property(property="owner", type="string", default="John"),
  *     @OA\Property(property="page", type="integer", default=1),
- *     @OA\Property(property="count", type="integer", default=10),
+ *     @OA\Property(property="perPage", type="integer", default=10),
  *     @OA\Property(property="sortBy", type="string", default="id"),
  *     @OA\Property(property="sortDirection", type="string", default="asc")
  * )
  */
-class PetCombinedDto
+class PetCombinedDto implements FilterInterface
 {
     public const PETCOUNT = 10;
     public const SORTBY = 'id';
@@ -52,7 +54,7 @@ class PetCombinedDto
         pattern: '/^[a-zA-Z0-9\s]*$/',
         message: 'Forbidden characters cant be entered'
     )]
-    private ?string $description = null;
+    private ?string $petDescription = null;
 
     #[Assert\Length(
         max: 255,
@@ -61,7 +63,7 @@ class PetCombinedDto
     #[Assert\Positive(
         message: 'Page number should be positive'
     )]
-    private ?string $page = null;
+    private ?int $page = null;
 
     #[Assert\Length(
         max: 255,
@@ -70,7 +72,7 @@ class PetCombinedDto
     #[Assert\Positive(
         message: 'Count number should be positive'
     )]
-    private int $count = self::PETCOUNT;
+    private int $perPage = self::PETCOUNT;
 
     private string $sortBy = self::SORTBY;
 
@@ -96,14 +98,14 @@ class PetCombinedDto
         $this->owner = $owner;
     }
 
-    public function getDescription(): ?string
+    public function getPetDescription(): ?string
     {
-        return $this->description;
+        return $this->petDescription;
     }
 
-    public function setDescription(?string $description): void
+    public function setPetDescription(?string $petDescription): void
     {
-        $this->description = $description;
+        $this->petDescription = $petDescription;
     }
 
     public function getPage(): ?int
@@ -116,14 +118,14 @@ class PetCombinedDto
         $this->page = $page;
     }
 
-    public function getCount(): int
+    public function getPerPage(): int
     {
-        return $this->count;
+        return $this->perPage;
     }
 
-    public function setCount(int $count): void
+    public function setPerPage(int $perPage): void
     {
-        $this->count = $count;
+        $this->perPage = $perPage;
     }
 
     public function getSortBy(): string
@@ -144,5 +146,47 @@ class PetCombinedDto
     public function setSortDirection(string $sortDirection): void
     {
         $this->sortDirection = $sortDirection;
+    }
+
+    public function getDescription(string $resourceClass): array
+    {
+        return [
+                'page' => [
+                    'property' => 'page',
+                    'type' => Type::BUILTIN_TYPE_INT,
+                    'description' => 'Номер страницы',
+                    'required' => false,
+                ],
+                'sortBy' => [
+                    'property' => 'sortBy',
+                    'type' => Type::BUILTIN_TYPE_STRING,
+                    'description' => 'Сортировать по',
+                    'required' => false,
+                ],
+                'petDescription' => [
+                    'property' => 'petDescription',
+                    'type' => Type::BUILTIN_TYPE_STRING,
+                    'description' => 'Описание питомца',
+                    'required' => false,
+                ],
+                'sortDirection' => [
+                    'property' => 'sortDirection',
+                    'type' => Type::BUILTIN_TYPE_STRING,
+                    'description' => 'Направление сортировки',
+                    'required' => false,
+                ],
+                'name' => [
+                    'property' => 'name',
+                    'type' => Type::BUILTIN_TYPE_STRING,
+                    'description' => 'Имя питомца',
+                    'required' => false,
+                ],
+                'owner' => [
+                    'property' => 'owner',
+                    'type' => Type::BUILTIN_TYPE_STRING,
+                    'description' => 'Имя хозяина',
+                    'required' => false,
+                ],
+        ];
     }
 }

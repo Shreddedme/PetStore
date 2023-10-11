@@ -5,10 +5,9 @@ namespace App\Provider;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
 use App\Exception\ValidationException;
-use App\Model\Dto\PetCombinedDto;
 use App\Model\Dto\UserCombinedDto;
-use App\Model\Dto\UserDto;
 use App\Repository\UserRepository;
+use App\Transformer\UserTransformer;
 use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -19,6 +18,7 @@ class UserListProvider implements ProviderInterface
         private UserRepository $userRepository,
         private SerializerInterface $serializer,
         private ValidatorInterface $validator,
+        private UserTransformer $userTransformer,
     )
     {}
 
@@ -40,12 +40,7 @@ class UserListProvider implements ProviderInterface
        $userDtos = [];
 
        foreach ($users as $user) {
-           $userDto = new UserDto();
-           $userDto->setId($user->getId());
-           $userDto->setName($user->getName());
-           $userDto->setEmail($user->getEmail());
-           $userDto->setRoles($user->getRoles());
-           $userDtos[] = $userDto;
+           $userDtos[] = $this->userTransformer->toDto($user);
        }
 
        return $userDtos;

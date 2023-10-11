@@ -25,23 +25,30 @@ class PetTransformer
             $pet->setUpdatedBy($user->getId());
         } else {
             $pet = new Pet();
+            $pet
+                ->setCreatedBy($user->getId())
+                ->setOwner($user);
         }
-        $pet->setName($petDto->getName());
-        $pet->setDescription($petDto->getDescription());
-        $pet->setCreatedBy($user->getId());
-        $pet->setOwner($user);
+        $pet
+            ->setName($petDto->getName())
+            ->setDescription($petDto->getDescription());;
 
         return $pet;
     }
 
-    public function toDto(PetDto $petDto, Pet $pet): PetDto
+
+    public function toDto(Pet $pet): PetDto
     {
-        $petDto->setId($pet->getId());
-        $petDto->setCreatedAt($pet->getCreatedAt());
-        $petDto->setUpdatedAt($pet->getUpdatedAt());
-        $petDto->setCreatedBy($pet->getCreatedBy());
-        $petDto->setUpdatedBy($pet->getUpdatedBy());
-        $petDto->setOwner($pet->getOwner());
+        $petDto = new PetDto();
+        $petDto
+            ->setId($pet->getId())
+            ->setName($pet->getName())
+            ->setDescription($pet->getDescription())
+            ->setCreatedAt($pet->getCreatedAt())
+            ->setUpdatedAt($pet->getUpdatedAt())
+            ->setCreatedBy($pet->getCreatedBy())
+            ->setUpdatedBy($pet->getUpdatedBy())
+            ->setOwner($pet->getOwner());
 
         return $petDto;
     }

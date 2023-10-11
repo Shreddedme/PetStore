@@ -4,13 +4,14 @@ namespace App\Provider;
 
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
-use App\Model\Dto\UserDto;
 use App\Repository\UserRepository;
+use App\Transformer\UserTransformer;
 
 class UserProvider implements ProviderInterface
 {
     public function __construct(
         private UserRepository $userRepository,
+        private UserTransformer $userTransformer,
     )
     {}
 
@@ -18,12 +19,6 @@ class UserProvider implements ProviderInterface
     {
         $user = $this->userRepository->find($uriVariables['id']);
 
-        $userDto = new UserDto();
-        $userDto->setId($user->getId());
-        $userDto->setName($user->getName());
-        $userDto->setEmail($user->getEmail());
-        $userDto->setRoles($user->getRoles());
-
-        return $userDto;
+        return $this->userTransformer->toDto($user);
     }
 }

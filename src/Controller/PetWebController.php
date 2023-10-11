@@ -76,7 +76,6 @@ class PetWebController extends AbstractController
             'sortBy' => $petCombinedDto->getSortBy(),
             'sortDirection' => $petCombinedDto->getSortDirection(),
             'petCombinedDto' => $petCombinedDto,
-
         ]);
     }
 
