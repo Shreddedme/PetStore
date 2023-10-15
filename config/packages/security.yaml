@@ -1,33 +1,49 @@
 security:
     # https://symfony.com/doc/current/security.html#registering-the-user-hashing-passwords
     password_hashers:
-        Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: 'auto'
+#        App\Entity\User: 'auto'
+        Symfony\Component\Security\Core\User\InMemoryUser: bcrypt
+#        Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: 'auto'
     # https://symfony.com/doc/current/security.html#loading-the-user-the-user-provider
+    enable_authenticator_manager: true
     providers:
-        app_user_provider:
-            entity:
-                class: App\Entity\User
-                property: email
-    firewalls:
-        dev:
-            pattern: ^/(_(profiler|wdt)|css|images|js)/
-            security: false
-            stateless: false
-        main:
-            lazy: true
-            provider: app_user_provider
-            custom_authenticator: App\Security\LoginAuthenticator
-            logout:
-                path: app_logout
-                target: 'app_user_menu'
-                # where to redirect after logout
-                # target: app_any_route
+        in_memory:
+            memory:
+                users:
+                    john:
+                        password: $2y$13$EyKjroPPa8uI4RGofwB6duGLMNf6TV50.yagzvi4b9jzz48EZMnTu
 
-            remember_me:
-                secret: '%kernel.secret%'
-                lifetime: 604800
-                path: /
-                always_remember_me: true
+    firewalls:
+        login:
+            pattern: ^/api/login
+            stateless: true
+            provider: in_memory
+            json_login:
+                check_path: /api/login_check
+                success_handler: lexik_jwt_authentication.handler.authentication_success
+                failure_handler: lexik_jwt_authentication.handler.authentication_failure
+
+        api:
+            pattern: ^/api
+            stateless: true
+            provider: in_memory
+            jwt: ~
+
+#        main:
+#            lazy: true
+#            provider: app_user_provider
+#            custom_authenticator: App\Security\LoginAuthenticator
+#            logout:
+#                path: app_logout
+#                target: 'app_user_menu'
+#                # where to redirect after logout
+#                # target: app_any_route
+
+#            remember_me:
+#                secret: '%kernel.secret%'
+#                lifetime: 604800
+#                path: /
+#                always_remember_me: true
 
             # activate different ways to authenticate
             # https://symfony.com/doc/current/security.html#the-firewall
@@ -38,6 +54,10 @@ security:
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
     access_control:
+        - { path: ^/api/v2, roles: PUBLIC_ACCESS } # Allows accessing the Swagger UI
+        - { path: ^/api/doc, roles: PUBLIC_ACCESS } # Allows accessing the Swagger UI docs
+        - { path: ^/auth, roles: PUBLIC_ACCESS }
+        - { path: ^/, roles: IS_AUTHENTICATED_FULLY }
         # - { path: ^/admin, roles: ROLE_ADMIN }
         # - { path: ^/profile, roles: ROLE_USER }
 
