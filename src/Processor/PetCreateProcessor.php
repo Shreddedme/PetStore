@@ -19,7 +19,6 @@ class PetCreateProcessor implements ProcessorInterface
         private Security $security,
         private EntityManagerInterface $entityManager,
         private PetTransformer $petTransformer,
-        private UserProviderInterface $userProvider,
     )
     {}
 
@@ -33,7 +32,6 @@ class PetCreateProcessor implements ProcessorInterface
          * @var User $currentUser
          */
         $currentUser = $this->security->getUser();
-//        $currentUser = $this->userProvider->loadUserByIdentifier('john');
         $pet = $this->petTransformer->toEntity(null, $data, $currentUser);
 
         $this->entityManager->persist($pet);
