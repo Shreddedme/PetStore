@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Processor;
+namespace App\Service\Processor;
 
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;

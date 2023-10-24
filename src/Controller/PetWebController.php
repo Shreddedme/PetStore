@@ -14,7 +14,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
-use App\Model\Dto\PetCombinedDto;
+use App\Model\Dto\PetRequestDto;
 
 class PetWebController extends AbstractController
 {
@@ -54,11 +54,11 @@ class PetWebController extends AbstractController
     }
 
     /**
-     * @ParamConverter("petCombinedDto", class=PetCombinedDto::class, converter="pet_combined_param_converter")
+     * @ParamConverter("petRequestDto", class=PetRequestDto::class, converter="pet_request_param_converter")
      * @throws Exception
      */
     #[Route('/pet/search', name: 'app_pet_search')]
-    public function getByFilters(Request $request, PetCombinedDto $petCombinedDto): Response
+    public function getByFilters(Request $request, PetRequestDto $petRequestDto): Response
     {
         $form = $this->createFormBuilder(PetSearchType::class)
             ->setMethod('GET')
@@ -66,16 +66,16 @@ class PetWebController extends AbstractController
 
         $form->handleRequest($request);
 
-        $paginator = $this->petUseCase->findByFilter($petCombinedDto);
+        $paginator = $this->petUseCase->findByFilter($petRequestDto);
         $pets = $paginator->getIterator();
 
         return $this->render('pet_web/pet_web_search/listSearchResults.html.twig', [
             'form' => $form->createView(),
             'pets' => $pets,
             'paginator' => $paginator,
-            'sortBy' => $petCombinedDto->getSortBy(),
-            'sortDirection' => $petCombinedDto->getSortDirection(),
-            'petCombinedDto' => $petCombinedDto,
+            'sortBy' => $petRequestDto->getSortBy(),
+            'sortDirection' => $petRequestDto->getSortDirection(),
+            'petRequestDto' => $petRequestDto,
         ]);
     }
 

@@ -4,7 +4,7 @@ namespace App\Service\User;
 
 use App\Entity\User;
 use App\Exception\EntityNotFoundException;
-use App\Model\Dto\UserCombinedDto;
+use App\Model\Dto\UserRequestDto;
 use App\Model\Dto\UserDto;
 use App\Repository\UserRepository;
 use App\Transformer\UserTransformer;
@@ -52,9 +52,9 @@ class UserUseCase
        return $this->userTransformer->toDto($user);
     }
 
-    public function getAllUsers(UserCombinedDto $userCombinedDto): Paginator
+    public function getAllUsers(UserRequestDto $userRequestDto): Paginator
     {
-        return $this->userRepository->getAllUsers($userCombinedDto);
+        return $this->userRepository->getAllUsers($userRequestDto);
     }
 
     /**

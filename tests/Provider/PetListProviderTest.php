@@ -6,14 +6,13 @@ use ApiPlatform\Metadata\Operation;
 use App\Entity\Pet;
 use App\Entity\User;
 use App\Exception\ValidationException;
-use App\Model\Dto\PetCombinedDto;
+use App\Model\Dto\PetRequestDto;
 use App\Model\Dto\PetDto;
-use App\Provider\PetListProvider;
 use App\Repository\PetRepository;
+use App\Service\Provider\PetListProvider;
 use App\Transformer\PetTransformer;
 use DateTime;
 use Doctrine\ORM\Tools\Pagination\Paginator;
-use PHPUnit\Framework\Exception;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
 use Symfony\Component\Serializer\Serializer;
@@ -22,6 +21,9 @@ use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
+/**
+ * @coversDefaultClass PetListProvider
+ */
 class PetListProviderTest extends TestCase
 {
     private PetRepository $petRepository;
@@ -53,10 +55,11 @@ class PetListProviderTest extends TestCase
      ** @throws ValidationException
      */
     public function testProvideWithValidData(
-        Pet $expectedPet,
-        PetDto $expectedPetDto,
-        PetCombinedDto $expectedPetCombinedDto,
-        $expectedParameters
+        Pet           $expectedPet,
+        PetDto        $expectedPetDto,
+        PetRequestDto $expectedPetRequestDto,
+                      $expectedParameters,
+                      $resultPetDto
     ): void
     {
         $context = ['filters' => $expectedParameters];
@@ -65,20 +68,20 @@ class PetListProviderTest extends TestCase
             ->method('denormalize')
             ->with(
                 $expectedParameters,
-                PetCombinedDto::class,
+                PetRequestDto::class,
                 null,
                 [AbstractObjectNormalizer::DISABLE_TYPE_ENFORCEMENT => true]
             )
-            ->willReturn($expectedPetCombinedDto);
+            ->willReturn($expectedPetRequestDto);
 
         $this->validator->expects($this->once())
             ->method('validate')
-            ->with($expectedPetCombinedDto)
+            ->with($expectedPetRequestDto)
             ->willReturn($this->constraintViolationListInterface);
 
         $this->petRepository->expects($this->once())
             ->method('findByFilter')
-            ->with($expectedPetCombinedDto)
+            ->with($expectedPetRequestDto)
             ->willReturn($this->paginator);
 
         $iterator = new \ArrayIterator([$expectedPet]);
@@ -93,7 +96,7 @@ class PetListProviderTest extends TestCase
 
         $result = $this->provider->provide($this->operation, [], $context);
 
-        $this->assertIsArray($result);
+        $this->assertEquals($resultPetDto, $result);
     }
 
     public function dataProvider(): array
@@ -116,15 +119,16 @@ class PetListProviderTest extends TestCase
             ->setUpdatedBy(1)
             ->setOwner((new User())->setName('john'));
 
-        $expectedPetCombinedDto = new PetCombinedDto();
+        $expectedPetRequestDto = new PetRequestDto();
         $expectedParameters = null;
         $expectedParameters2 = ['name' => 'bird'];
         $expectedParameters3 = ['name' => 'dogф'];
+        $resultPetDto = [$expectedPetDto];
 
         return [
-            [$expectedPet, $expectedPetDto, $expectedPetCombinedDto, $expectedParameters],
-            [$expectedPet, $expectedPetDto, $expectedPetCombinedDto, $expectedParameters2],
-            [$expectedPet, $expectedPetDto, $expectedPetCombinedDto, $expectedParameters3],
+            [$expectedPet, $expectedPetDto, $expectedPetRequestDto, $expectedParameters, $resultPetDto],
+            [$expectedPet, $expectedPetDto, $expectedPetRequestDto, $expectedParameters2, $resultPetDto],
+            [$expectedPet, $expectedPetDto, $expectedPetRequestDto, $expectedParameters3, $resultPetDto],
         ];
     }
 
@@ -137,33 +141,40 @@ class PetListProviderTest extends TestCase
     public function testThrowsValidationException(
         Pet $expectedPet,
         PetDto $expectedPetDto,
-        PetCombinedDto $expectedPetCombinedDto,
+        PetRequestDto $expectedPetRequestDto,
         $expectedParameters
     ): void
     {
         $context = ['filters' => $expectedParameters];
 
-        $expectedPetCombinedDto = new PetCombinedDto();
-
         $this->serializer->expects($this->once())
             ->method('denormalize')
             ->with(
                 $expectedParameters,
-                PetCombinedDto::class,
+                PetRequestDto::class,
                 null,
                 [AbstractObjectNormalizer::DISABLE_TYPE_ENFORCEMENT => true]
             )
-            ->willReturn($expectedPetCombinedDto);
+            ->willReturn($expectedPetRequestDto);
 
         $violationList = new ConstraintViolationList();
         $violationList->add($this->violation);
 
         $this->validator->expects($this->once())
             ->method('validate')
-            ->with($expectedPetCombinedDto)
+            ->with($expectedPetRequestDto)
             ->willReturn($violationList);
 
-        $this->expectException(Exception::class);
+        $this->expectException(ValidationException::class);
+
+        $this->petRepository->expects($this->never())
+            ->method('findByFilter');
+
+        $this->paginator->expects($this->never())
+            ->method('getIterator');
+
+        $this->petTransformer->expects($this->never())
+            ->method('toDto');
 
         $this->provider->provide($this->operation, [], $context);
     }
@@ -174,10 +185,10 @@ class PetListProviderTest extends TestCase
      * @throws ValidationException
      */
     public function testNoPetsFound(
-        Pet $expectedPet,
-        PetDto $expectedPetDto,
-        PetCombinedDto $expectedPetCombinedDto,
-        $expectedParameters
+        Pet           $expectedPet,
+        PetDto        $expectedPetDto,
+        PetRequestDto $expectedPetRequestDto,
+                      $expectedParameters
     ): void
     {
         $context = ['filters' => $expectedParameters];
@@ -186,20 +197,20 @@ class PetListProviderTest extends TestCase
             ->method('denormalize')
             ->with(
                 $expectedParameters,
-                PetCombinedDto::class,
+                PetRequestDto::class,
                 null,
                 [AbstractObjectNormalizer::DISABLE_TYPE_ENFORCEMENT => true]
             )
-            ->willReturn($expectedPetCombinedDto);
+            ->willReturn($expectedPetRequestDto);
 
         $this->validator->expects($this->once())
             ->method('validate')
-            ->with($expectedPetCombinedDto)
+            ->with($expectedPetRequestDto)
             ->willReturn($this->constraintViolationListInterface);
 
         $this->petRepository->expects($this->once())
             ->method('findByFilter')
-            ->with($expectedPetCombinedDto)
+            ->with($expectedPetRequestDto)
             ->willReturn($this->paginator);
 
         $iterator = new \ArrayIterator([]);
@@ -212,6 +223,6 @@ class PetListProviderTest extends TestCase
 
         $result = $this->provider->provide($this->operation, [], $context);
 
-        $this->assertEquals([], $result);
+        $this->assertEmpty($result);
     }
 }

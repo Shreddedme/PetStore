@@ -1,24 +1,24 @@
 <?php
 
-namespace App\Provider;
+namespace App\Service\Provider;
 
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
 use App\Exception\ValidationException;
-use App\Model\Dto\UserCombinedDto;
-use App\Repository\UserRepository;
-use App\Transformer\UserTransformer;
+use App\Model\Dto\PetRequestDto;
+use App\Repository\PetRepository;
+use App\Transformer\PetTransformer;
 use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-class UserListProvider implements ProviderInterface
+class PetListProvider implements ProviderInterface
 {
     public function __construct(
-        private UserRepository $userRepository,
+        private PetRepository $petRepository,
         private SerializerInterface $serializer,
         private ValidatorInterface $validator,
-        private UserTransformer $userTransformer,
+        private PetTransformer $petTransformer,
     )
     {}
 
@@ -28,21 +28,26 @@ class UserListProvider implements ProviderInterface
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): object|array|null
     {
         $parameters = $context['filters'] ?? null;
-        $userCombinedDto = $this->serializer->denormalize($parameters, UserCombinedDto::class, null, [AbstractObjectNormalizer::DISABLE_TYPE_ENFORCEMENT => true]);
+        $petCombinedDto = $this->serializer->denormalize(
+            $parameters,
+            PetRequestDto::class,
+            null,
+            [AbstractObjectNormalizer::DISABLE_TYPE_ENFORCEMENT => true]
+        );
 
-        $errors = $this->validator->validate($userCombinedDto);
+        $errors = $this->validator->validate($petCombinedDto);
 
         if (count($errors) > 0) {
             throw new ValidationException($errors);
         }
-       $users = $this->userRepository->getAllUsers($userCombinedDto);
 
-       $userDtos = [];
+        $pets = $this->petRepository->findByFilter($petCombinedDto);
+        $petDtos = [];
 
-       foreach ($users as $user) {
-           $userDtos[] = $this->userTransformer->toDto($user);
-       }
+        foreach ($pets as $pet) {
+            $petDtos[] = $this->petTransformer->toDto($pet);
+        }
 
-       return $userDtos;
+        return $petDtos;
     }
 }

@@ -7,13 +7,15 @@ use App\Entity\Pet;
 use App\Entity\User;
 use App\Exception\EntityNotFoundException;
 use App\Model\Dto\PetDto;
-use App\Processor\PetCreateProcessor;
+use App\Service\Processor\PetCreateProcessor;
 use App\Transformer\PetTransformer;
 use Doctrine\ORM\EntityManagerInterface;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Symfony\Bundle\SecurityBundle\Security;
 
+/**
+ * @coversDefaultClass PetCreateProcessor
+ */
 class PetCreateProcessorTest extends TestCase
 {
     private User $user;
@@ -36,7 +38,7 @@ class PetCreateProcessorTest extends TestCase
     /**
      * @test
      * @dataProvider petData
-     * @covers ::process
+     * @covers PetCreateProcessor::process
      * @param PetDto $petDto
      * @return void
      * @throws EntityNotFoundException
@@ -72,11 +74,7 @@ class PetCreateProcessorTest extends TestCase
     public function petData(): array
     {
         return [
-            [
-                (new PetDto())->setName('Cat')->setDescription('Lazy')->setCreatedBy(1),
-                (new PetDto())->setName('Dog')->setDescription('Lazy')->setCreatedBy(1),
-                (new PetDto())->setName('Bird')->setDescription('Lazy')->setCreatedBy(1),
-            ],
+            [(new PetDto())->setName('Cat')->setDescription('Lazy')->setCreatedBy(1)],
         ];
     }
 }

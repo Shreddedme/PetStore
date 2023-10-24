@@ -6,7 +6,7 @@ use App\Entity\Pet;
 use App\Entity\User;
 use App\Exception\EntityNotFoundException;
 use App\Model\Dto\PetDto;
-use App\Model\Dto\PetCombinedDto;
+use App\Model\Dto\PetRequestDto;
 use App\Service\Pet\PetUseCase;
 use OpenApi\Annotations as OA;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
@@ -78,7 +78,7 @@ class PetController extends AbstractController
     }
 
     /**
-     * @ParamConverter("petCombinedDto", class=PetCombinedDto::class, converter="pet_combined_param_converter")
+     * @ParamConverter("petRequestDto", class=PetRequestDto::class, converter="pet_request_param_converter")
      * @OA\Tag(name="Pet")
      * @OA\Get(
      *     path="/api/pets",
@@ -117,7 +117,7 @@ class PetController extends AbstractController
      *         description="Список питомцев",
      *         @OA\JsonContent(
      *             type="array",
-     *             @OA\Items(ref=@Model(type=\App\Model\Dto\PetCombinedDto::class))
+     *             @OA\Items(ref=@Model(type=\App\Model\Dto\PetRequestDto::class))
      *         )
      *     ),
      *     @OA\Response(
@@ -126,14 +126,14 @@ class PetController extends AbstractController
      *         @OA\JsonContent(ref=@Model(type=\App\Model\ErrorHandling\ErrorResponse::class))
      *     )
      * )
-     * @param PetCombinedDto $petCombinedDto
+     * @param PetRequestDto $petRequestDto
      * @return JsonResponse
      */
     #[Route('/api/pet', methods: ['GET'])]
-    public function getByFilters(PetCombinedDto $petCombinedDto): JsonResponse
+    public function getByFilters(PetRequestDto $petRequestDto): JsonResponse
     {
        return $this->json(
-           $this->petUseCase->findByFilter($petCombinedDto),
+           $this->petUseCase->findByFilter($petRequestDto),
            Response::HTTP_OK,
            [],
            ['groups' => [Pet::PET_GET_GROUP, User::USER_SHORT_GET_GROUP]]

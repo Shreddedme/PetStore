@@ -1,25 +1,25 @@
 <?php
 
-namespace App\Processor;
+namespace App\Service\Processor;
 
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
-use App\Repository\UserRepository;
+use App\Repository\PetRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
-class UserDeleteProcessor implements ProcessorInterface
+class PetDeleteProcessor implements ProcessorInterface
 {
     public function __construct(
-        private UserRepository $userRepository,
+        private PetRepository $petRepository,
         private EntityManagerInterface $entityManager,
     )
     {}
 
     public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = [])
     {
-        $user = $this->userRepository->find($uriVariables['id']);
+        $pet = $this->petRepository->find($uriVariables['id']);
 
-        $this->entityManager->remove($user);
+        $this->entityManager->remove($pet);
         $this->entityManager->flush();
     }
 }

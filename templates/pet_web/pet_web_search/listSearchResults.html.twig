@@ -35,10 +35,10 @@
         <table class="table">
             <thead>
             <tr>
-                <th><a href="{{ path('app_pet_search', {'sort_by': 'id', 'sort_direction': (petCombinedDto.getSortBy() == 'id' and petCombinedDto.getSortDirection() != 'desc') ? 'desc' : 'asc', 'name': app.request.query.get('name'), 'description': app.request.query.get('description'), 'owner': app.request.query.get('owner')}) }}">ID</a></th>
-                <th><a href="{{ path('app_pet_search', {'sort_by': 'name', 'sort_direction': (petCombinedDto.getSortBy() == 'name' and petCombinedDto.getSortDirection() != 'desc') ? 'desc' : 'asc', 'name': app.request.query.get('name'), 'description': app.request.query.get('description'), 'owner': app.request.query.get('owner')}) }}">Name</a></th>
-                <th><a href="{{ path('app_pet_search', {'sort_by': 'description', 'sort_direction': (petCombinedDto.getSortBy() == 'description' and petCombinedDto.getSortDirection() != 'desc') ? 'desc' : 'asc', 'name': app.request.query.get('name'), 'description': app.request.query.get('description'), 'owner': app.request.query.get('owner')}) }}">Description</a></th>
-                <th><a href="{{ path('app_pet_search', {'sort_by': 'owner', 'sort_direction': (petCombinedDto.getSortBy() == 'owner' and petCombinedDto.getSortDirection() != 'desc') ? 'desc' : 'asc', 'name': app.request.query.get('name'), 'description': app.request.query.get('description'), 'owner': app.request.query.get('owner')}) }}">Owner</a></th>
+                <th><a href="{{ path('app_pet_search', {'sort_by': 'id', 'sort_direction': (petRequestDto.getSortBy() == 'id' and petRequestDto.getSortDirection() != 'desc') ? 'desc' : 'asc', 'name': app.request.query.get('name'), 'description': app.request.query.get('description'), 'owner': app.request.query.get('owner')}) }}">ID</a></th>
+                <th><a href="{{ path('app_pet_search', {'sort_by': 'name', 'sort_direction': (petRequestDto.getSortBy() == 'name' and petRequestDto.getSortDirection() != 'desc') ? 'desc' : 'asc', 'name': app.request.query.get('name'), 'description': app.request.query.get('description'), 'owner': app.request.query.get('owner')}) }}">Name</a></th>
+                <th><a href="{{ path('app_pet_search', {'sort_by': 'description', 'sort_direction': (petRequestDto.getSortBy() == 'description' and petRequestDto.getSortDirection() != 'desc') ? 'desc' : 'asc', 'name': app.request.query.get('name'), 'description': app.request.query.get('description'), 'owner': app.request.query.get('owner')}) }}">Description</a></th>
+                <th><a href="{{ path('app_pet_search', {'sort_by': 'owner', 'sort_direction': (petRequestDto.getSortBy() == 'owner' and petRequestDto.getSortDirection() != 'desc') ? 'desc' : 'asc', 'name': app.request.query.get('name'), 'description': app.request.query.get('description'), 'owner': app.request.query.get('owner')}) }}">Owner</a></th>
             </tr>
             </thead>
             <tbody>

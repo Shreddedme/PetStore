@@ -4,7 +4,7 @@ namespace App\Controller;
 
 use App\Enum\ApiGroupsEnum;
 use App\Exception\EntityNotFoundException;
-use App\Model\Dto\UserCombinedDto;
+use App\Model\Dto\UserRequestDto;
 use App\Model\UserForm\UserFormType;
 use App\Service\User\UserUseCase;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
@@ -45,19 +45,19 @@ class UserWebController extends AbstractController
     }
 
     /**
-     * @ParamConverter("userCombinedDto", class=UserCombinedDto::class, converter="user_combined_param_converter")
+     * @ParamConverter("userRequestDto", class=UserRequestDto::class, converter="user_request_param_converter")
      * @throws \Exception
      */
     #[Route('/user/search', name: 'app_user_list')]
-    public function getList(UserCombinedDto $userCombinedDto): Response
+    public function getList(UserRequestDto $userRequestDto): Response
     {
-        $paginator = $this->userUseCase->getAllUsers($userCombinedDto);
+        $paginator = $this->userUseCase->getAllUsers($userRequestDto);
         $users = $paginator->getIterator();
 
         return $this->render('user_web/user_web_search/userListSearch.html.twig', [
             'users' => $users,
             'paginator' => $paginator,
-            'userCombinedDto' => $userCombinedDto,
+            'userRequestDto' => $userRequestDto,
         ]);
     }
 

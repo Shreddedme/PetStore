@@ -13,7 +13,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Nelmio\ApiDocBundle\Annotation\Model;
-use App\Model\Dto\UserCombinedDto;
+use App\Model\Dto\UserRequestDto;
 
 class UserController extends AbstractController
 {
@@ -81,7 +81,7 @@ class UserController extends AbstractController
     }
 
     /**
-     * @ParamConverter("userCombinedDto", class=UserCombinedDto::class, converter="user_combined_param_converter")
+     * @ParamConverter("userRequestDto", class=UserRequestDto::class, converter="user_request_param_converter")
      * @OA\Tag(name="User")
      * @OA\Get(
      *      path="/api/user",
@@ -99,7 +99,7 @@ class UserController extends AbstractController
      *          description="Список пользователей",
      *          @OA\JsonContent(
      *              type="array",
-     *              @OA\Items(ref=@Model(type=\App\Model\Dto\UserCombinedDto::class))
+     *              @OA\Items(ref=@Model(type=\App\Model\Dto\UserRequestDto::class))
      *          )
      *      ),
      *      @OA\Response(
@@ -110,10 +110,10 @@ class UserController extends AbstractController
      *  )
      */
     #[Route('/api/user', methods: 'GET')]
-    public function getList(UserCombinedDto $userCombinedDto): JsonResponse
+    public function getList(UserRequestDto $userRequestDto): JsonResponse
     {
         return $this->json(
-            $this->userUseCase->getAllUsers($userCombinedDto),
+            $this->userUseCase->getAllUsers($userRequestDto),
             Response::HTTP_OK,
             [],
             ['groups' => User::USER_GET_GROUP]

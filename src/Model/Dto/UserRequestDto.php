@@ -9,12 +9,12 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @OA\Schema(
- *     title="UserCombinedDto",
+ *     title="UserRequestDto",
  *     description="Пользователь",
  *     @OA\Property(property="page", type="integer", default=1),
  * )
  */
-class UserCombinedDto implements FilterInterface
+class UserRequestDto implements FilterInterface
 {
     public const USERCOUNT = 2;
 

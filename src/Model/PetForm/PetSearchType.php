@@ -2,7 +2,7 @@
 
 namespace App\Model\PetForm;
 
-use App\Model\Dto\PetCombinedDto;
+use App\Model\Dto\PetRequestDto;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -30,7 +30,7 @@ class PetSearchType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-            'data_class' => PetCombinedDto::class,
+            'data_class' => PetRequestDto::class,
         ]);
     }
 }

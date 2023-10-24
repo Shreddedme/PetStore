@@ -3,7 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Pet;
-use App\Model\Dto\PetCombinedDto;
+use App\Model\Dto\PetRequestDto;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\Tools\Pagination\Paginator;
 use Doctrine\Persistence\ManagerRegistry;
@@ -26,41 +26,41 @@ class PetRepository extends ServiceEntityRepository
     }
 
     /**
-     * @param PetCombinedDto $petCombinedDto
+     * @param PetRequestDto $petRequestDto
      * @return Paginator
      */
-    public function findByFilter(PetCombinedDto $petCombinedDto): Paginator
+    public function findByFilter(PetRequestDto $petRequestDto): Paginator
     {
-        $page = $petCombinedDto->getPage() ?? 1;
+        $page = $petRequestDto->getPage() ?? 1;
         $queryBuilder = $this->createQueryBuilder('p')
             ->select('p')
             ->leftJoin('p.owner', 'o')
-            ->orderBy('p.' . $petCombinedDto->getSortBy(), $petCombinedDto->getSortDirection());
+            ->orderBy('p.' . $petRequestDto->getSortBy(), $petRequestDto->getSortDirection());
 
-        if ($petCombinedDto->getName() !== null) {
+        if ($petRequestDto->getName() !== null) {
             $queryBuilder
                 ->andWhere('LOWER(p.name) LIKE LOWER(:name)')
-                ->setParameter('name', '%' . $petCombinedDto->getName() . '%');
+                ->setParameter('name', '%' . $petRequestDto->getName() . '%');
         }
 
-        if ($petCombinedDto->getOwner() !== null) {
+        if ($petRequestDto->getOwner() !== null) {
             $queryBuilder
                 ->andWhere('LOWER(o.name) LIKE LOWER(:owner)')
-                ->setParameter('owner', '%' . $petCombinedDto->getOwner() . '%');
+                ->setParameter('owner', '%' . $petRequestDto->getOwner() . '%');
         }
 
-        if ($petCombinedDto->getPetDescription() !== null) {
+        if ($petRequestDto->getPetDescription() !== null) {
             $queryBuilder
                 ->andWhere('LOWER(p.description) LIKE LOWER(:description)')
-                ->setParameter('description', '%' . $petCombinedDto->getPetDescription() . '%');
+                ->setParameter('description', '%' . $petRequestDto->getPetDescription() . '%');
         }
 
         $query = $queryBuilder->getQuery();
 
-        $firstResult = ($page - 1) * $petCombinedDto->getPerPage();
+        $firstResult = ($page - 1) * $petRequestDto->getPerPage();
 
         $query->setFirstResult($firstResult)
-            ->setMaxResults($petCombinedDto->getPerPage())
+            ->setMaxResults($petRequestDto->getPerPage())
             ->enableResultCache(self::CACHE_EXPIREDTIME, 'filters_id');
 
         return new Paginator($query, true);

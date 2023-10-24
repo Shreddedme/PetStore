@@ -9,7 +9,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @OA\Schema(
- *     title="PetCombinedDto",
+ *     title="PetRequestDto",
  *     description="Питомец",
  *     @OA\Property(property="name", type="string", default="Cat"),
  *     @OA\Property(property="petDescription", type="string", default="Very lazy"),
@@ -20,7 +20,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *     @OA\Property(property="sortDirection", type="string", default="asc")
  * )
  */
-class PetCombinedDto implements FilterInterface
+class PetRequestDto implements FilterInterface
 {
     public const PETCOUNT = 10;
     public const SORTBY = 'id';
