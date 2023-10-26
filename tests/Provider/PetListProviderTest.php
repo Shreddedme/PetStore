@@ -5,7 +5,7 @@ namespace App\Tests\Provider;
 use ApiPlatform\Metadata\Operation;
 use App\Entity\Pet;
 use App\Entity\User;
-use App\Exception\ValidationException;
+use ApiPlatform\Symfony\Validator\Exception\ValidationException;
 use App\Model\Dto\PetRequestDto;
 use App\Model\Dto\PetDto;
 use App\Repository\PetRepository;
@@ -18,8 +18,7 @@ use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
 use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
-use Symfony\Component\Validator\ConstraintViolationListInterface;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
+use ApiPlatform\Validator\ValidatorInterface;
 
 /**
  * @coversDefaultClass PetListProvider
@@ -32,9 +31,8 @@ class PetListProviderTest extends TestCase
     private PetTransformer $petTransformer;
     private Operation $operation;
     private Paginator $paginator;
-    private ConstraintViolationListInterface $constraintViolationListInterface;
     private PetListProvider $provider;
-    private ConstraintViolation $violation;
+
     public function setUp(): void
     {
         $this->petRepository = $this->createMock(PetRepository::class);
@@ -43,19 +41,17 @@ class PetListProviderTest extends TestCase
         $this->petTransformer = $this->createMock(PetTransformer::class);
         $this->operation = $this->createMock(Operation::class);
         $this->paginator = $this->createMock(Paginator::class);
-        $this->constraintViolationListInterface = $this->createMock(ConstraintViolationListInterface::class);
         $this->violation = $this->createMock(ConstraintViolation::class);
 
         $this->provider = new PetListProvider($this->petRepository, $this->serializer, $this->validator, $this->petTransformer);
     }
 
     /**
-     * @dataProvider dataProvider
+     * @dataProvider successCasesProvider
      * @covers  PetListProvider::provide
-     ** @throws ValidationException
      */
     public function testProvideWithValidData(
-        Pet           $expectedPet,
+        array         $expectedPets,
         PetDto        $expectedPetDto,
         PetRequestDto $expectedPetRequestDto,
                       $expectedParameters,
@@ -76,32 +72,42 @@ class PetListProviderTest extends TestCase
 
         $this->validator->expects($this->once())
             ->method('validate')
-            ->with($expectedPetRequestDto)
-            ->willReturn($this->constraintViolationListInterface);
+            ->with($expectedPetRequestDto);
 
         $this->petRepository->expects($this->once())
             ->method('findByFilter')
             ->with($expectedPetRequestDto)
             ->willReturn($this->paginator);
 
-        $iterator = new \ArrayIterator([$expectedPet]);
+        $iterator = new \ArrayIterator($expectedPets);
         $this->paginator->expects($this->once())
             ->method('getIterator')
             ->willReturn($iterator);
 
-        $this->petTransformer->expects($this->once())
+        $withConsecutive = [];
+        foreach ($expectedPets as $expectedPet) {
+            $withConsecutive[] = [$expectedPet];
+        }
+
+        $expectedPetDtoArray = [];
+        foreach ($resultPetDto as $resultDto) {
+            $expectedPetDtoArray[] = $resultDto;
+        }
+
+        $this->petTransformer->expects($this->exactly(count($expectedPets)))
             ->method('toDto')
-            ->with($expectedPet)
-            ->willReturn($expectedPetDto);
+            ->withConsecutive(...$withConsecutive)
+            ->willReturnOnConsecutiveCalls(...$expectedPetDtoArray);
 
         $result = $this->provider->provide($this->operation, [], $context);
 
         $this->assertEquals($resultPetDto, $result);
+
     }
 
-    public function dataProvider(): array
+    public function successCasesProvider(): array
     {
-        $expectedPet = (new Pet())
+        $expectedPetCat = (new Pet())
             ->setName('Cat')
             ->setDescription('Very lazy')
             ->setCreatedAt(new DateTime('2023-09-10 17:45:23'))
@@ -110,7 +116,25 @@ class PetListProviderTest extends TestCase
             ->setUpdatedBy(1)
             ->setOwner((new User())->setName('john'));
 
-        $expectedPetDto = (new PetDto())
+        $expectedPetDog = (new Pet())
+            ->setName('Dog')
+            ->setDescription('Good')
+            ->setCreatedAt(new DateTime('2023-09-12 15:30:15'))
+            ->setUpdatedAt(new DateTime('2023-10-15 16:20:40'))
+            ->setCreatedBy(42)
+            ->setUpdatedBy(2)
+            ->setOwner((new User())->setName('ben'));
+
+        $expectedPetFrog = (new Pet())
+            ->setName('Frog')
+            ->setDescription('Green')
+            ->setCreatedAt(new DateTime('2023-09-14 10:10:10'))
+            ->setUpdatedAt(new DateTime('2023-10-19 09:45:55'))
+            ->setCreatedBy(7)
+            ->setUpdatedBy(3)
+            ->setOwner((new User())->setName('frank'));
+
+        $expectedPetDtoCat = (new PetDto())
             ->setName('Cat')
             ->setDescription('Very lazy')
             ->setCreatedAt(new DateTime('2023-09-10 17:45:23'))
@@ -118,28 +142,53 @@ class PetListProviderTest extends TestCase
             ->setCreatedBy(23)
             ->setUpdatedBy(1)
             ->setOwner((new User())->setName('john'));
+
+        $expectedPetDtoDog = (new PetDto())
+            ->setName('Dog')
+            ->setDescription('Good')
+            ->setCreatedAt(new DateTime('2023-09-12 15:30:15'))
+            ->setUpdatedAt(new DateTime('2023-10-15 16:20:40'))
+            ->setCreatedBy(42)
+            ->setUpdatedBy(2)
+            ->setOwner((new User())->setName('ben'));
+
+        $expectedPetDtoFrog = (new PetDto())
+            ->setName('Frog')
+            ->setDescription('Green')
+            ->setCreatedAt(new DateTime('2023-09-14 10:10:10'))
+            ->setUpdatedAt(new DateTime('2023-10-19 09:45:55'))
+            ->setCreatedBy(7)
+            ->setUpdatedBy(3)
+            ->setOwner((new User())->setName('frank'));
 
         $expectedPetRequestDto = new PetRequestDto();
         $expectedParameters = null;
         $expectedParameters2 = ['name' => 'bird'];
         $expectedParameters3 = ['name' => 'dogф'];
-        $resultPetDto = [$expectedPetDto];
+        $resultPetDto1 = [$expectedPetDtoCat];
+        $resultPetDto2 = [$expectedPetDtoCat, $expectedPetDtoDog];
+        $resultPetDto3 = [$expectedPetDtoFrog];
+
+        $expectedPets = [$expectedPetCat, $expectedPetDog];
 
         return [
-            [$expectedPet, $expectedPetDto, $expectedPetRequestDto, $expectedParameters, $resultPetDto],
-            [$expectedPet, $expectedPetDto, $expectedPetRequestDto, $expectedParameters2, $resultPetDto],
-            [$expectedPet, $expectedPetDto, $expectedPetRequestDto, $expectedParameters3, $resultPetDto],
+            [[$expectedPetCat], $expectedPetDtoCat, $expectedPetRequestDto, $expectedParameters, $resultPetDto1],
+            [$expectedPets, $expectedPetDtoDog, $expectedPetRequestDto, $expectedParameters2, $resultPetDto2],
+            [[$expectedPetFrog], $expectedPetDtoFrog, $expectedPetRequestDto, $expectedParameters3, $resultPetDto3],
         ];
     }
 
     /**
-     * @dataProvider dataProvider
-     * @covers PetListProvider::provide
+     * @dataProvider successCasesProvider
+     * @covers       PetListProvider::provide
+     * @param array $expectedPet
+     * @param PetDto $expectedPetDto
+     * @param PetRequestDto $expectedPetRequestDto
+     * @param $expectedParameters
      * @return void
-     * @throws ValidationException
      */
-    public function testThrowsValidationException(
-        Pet $expectedPet,
+    public function testThrowsException(
+        array $expectedPet,
         PetDto $expectedPetDto,
         PetRequestDto $expectedPetRequestDto,
         $expectedParameters
@@ -160,12 +209,12 @@ class PetListProviderTest extends TestCase
         $violationList = new ConstraintViolationList();
         $violationList->add($this->violation);
 
+        $this->expectException(ValidationException::class);
+
         $this->validator->expects($this->once())
             ->method('validate')
             ->with($expectedPetRequestDto)
-            ->willReturn($violationList);
-
-        $this->expectException(ValidationException::class);
+            ->willThrowException(new ValidationException($violationList));
 
         $this->petRepository->expects($this->never())
             ->method('findByFilter');
@@ -180,12 +229,11 @@ class PetListProviderTest extends TestCase
     }
 
     /**
-     * @dataProvider dataProvider
+     * @dataProvider successCasesProvider
      * @covers  PetListProvider::provide
-     * @throws ValidationException
      */
     public function testNoPetsFound(
-        Pet           $expectedPet,
+        array           $expectedPet,
         PetDto        $expectedPetDto,
         PetRequestDto $expectedPetRequestDto,
                       $expectedParameters
@@ -205,8 +253,7 @@ class PetListProviderTest extends TestCase
 
         $this->validator->expects($this->once())
             ->method('validate')
-            ->with($expectedPetRequestDto)
-            ->willReturn($this->constraintViolationListInterface);
+            ->with($expectedPetRequestDto);
 
         $this->petRepository->expects($this->once())
             ->method('findByFilter')
