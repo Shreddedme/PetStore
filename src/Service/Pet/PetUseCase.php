@@ -5,7 +5,7 @@ namespace App\Service\Pet;
 use App\Entity\Pet;
 use App\Entity\User;
 use App\Exception\EntityNotFoundException;
-use App\Model\Dto\PetCombinedDto;
+use App\Model\Dto\PetRequestDto;
 use App\Model\Dto\PetDto;
 use App\Repository\PetRepository;
 use App\Transformer\PetTransformer;
@@ -61,9 +61,9 @@ class PetUseCase
         return $this->petTransformer->toDto($pet);
     }
 
-    public function findByFilter(PetCombinedDto $petCombinedDto): Paginator
+    public function findByFilter(PetRequestDto $petRequestDto): Paginator
     {
-        return $this->petRepository->findByFilter($petCombinedDto);
+        return $this->petRepository->findByFilter($petRequestDto);
     }
 
     /**

@@ -3,7 +3,7 @@
 namespace App\ParamConverter;
 
 use App\Exception\ValidationException;
-use App\Model\Dto\PetCombinedDto;
+use App\Model\Dto\PetRequestDto;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Request\ParamConverter\ParamConverterInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -13,7 +13,7 @@ use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-class PetCombinedParamConverter implements ParamConverterInterface
+class PetRequestParamConverter implements ParamConverterInterface
 {
     public function __construct(
         private SerializerInterface $serializer,
@@ -29,7 +29,7 @@ class PetCombinedParamConverter implements ParamConverterInterface
         $parameters = $request->query->all();
 
         try {
-            $petDto = $this->serializer->denormalize($parameters, PetCombinedDto::class, null, [AbstractObjectNormalizer::DISABLE_TYPE_ENFORCEMENT => true]);
+            $petDto = $this->serializer->denormalize($parameters, PetRequestDto::class, null, [AbstractObjectNormalizer::DISABLE_TYPE_ENFORCEMENT => true]);
         } catch (NotEncodableValueException $e) {
             throw new BadRequestHttpException('Invalid format', $e);
         }
@@ -47,6 +47,6 @@ class PetCombinedParamConverter implements ParamConverterInterface
 
     public function supports(ParamConverter $configuration)
     {
-        return $configuration->getClass() === PetCombinedDto::class;
+        return $configuration->getClass() === PetRequestDto::class;
     }
 }

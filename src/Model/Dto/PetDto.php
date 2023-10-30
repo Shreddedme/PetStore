@@ -10,16 +10,16 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use App\Entity\User;
-use App\Processor\PetCreateProcessor;
-use App\Processor\PetDeleteProcessor;
-use App\Processor\PetUpdateProcessor;
-use App\Provider\PetListProvider;
-use App\Provider\PetProvider;
+use App\Service\Processor\PetCreateProcessor;
+use App\Service\Processor\PetDeleteProcessor;
+use App\Service\Processor\PetUpdateProcessor;
+use App\Service\Provider\PetListProvider;
+use App\Service\Provider\PetProvider;
 use DateTime;
+use Gedmo\Mapping\Annotation as Gedmo;
 use OpenApi\Annotations as OA;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
-use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * @OA\Schema(
@@ -63,7 +63,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
     normalizationContext: ['groups' => [self::PET_READ]],
     denormalizationContext: ['groups' => [self::PET_WRITE]],
 )]
-#[ApiFilter(PetCombinedDto::class)]
+#[ApiFilter(PetRequestDto::class)]
 class PetDto
 {
     const PET_GET = 'get';

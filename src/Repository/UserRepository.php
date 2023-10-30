@@ -2,7 +2,7 @@
 
 namespace App\Repository;
 
-use App\Model\Dto\UserCombinedDto;
+use App\Model\Dto\UserRequestDto;
 use Doctrine\ORM\Tools\Pagination\Paginator;
 use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
@@ -25,18 +25,18 @@ class UserRepository extends ServiceEntityRepository
         parent::__construct($registry, User::class);
     }
 
-    public function getAllUsers(UserCombinedDto $userCombinedDto): Paginator
+    public function getAllUsers(UserRequestDto $userRequestDto): Paginator
     {
-        $page = $userCombinedDto->getPage() ?? 1;
+        $page = $userRequestDto->getPage() ?? 1;
         $queryBuilder = $this->createQueryBuilder('u')
             ->select('u');
 
         $query = $queryBuilder->getQuery();
 
-        $firstResult = ($page - 1) * $userCombinedDto->getCount();
+        $firstResult = ($page - 1) * $userRequestDto->getCount();
 
         $query->setFirstResult($firstResult)
-            ->setMaxResults($userCombinedDto->getCount())
+            ->setMaxResults($userRequestDto->getCount())
             ->enableResultCache(self::CACHE_EXPIREDTIME, 'user_filter_id');
 
         return new Paginator($query, true);

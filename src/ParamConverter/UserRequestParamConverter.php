@@ -3,7 +3,7 @@
 namespace App\ParamConverter;
 
 use App\Exception\ValidationException;
-use App\Model\Dto\UserCombinedDto;
+use App\Model\Dto\UserRequestDto;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Request\ParamConverter\ParamConverterInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -13,7 +13,7 @@ use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-class UserCombinedParamConverter implements ParamConverterInterface
+class UserRequestParamConverter implements ParamConverterInterface
 {
     public function __construct(
         private SerializerInterface $serializer,
@@ -29,7 +29,7 @@ class UserCombinedParamConverter implements ParamConverterInterface
         $parameters = $request->query->all();
 
         try {
-            $userCombinedDto = $this->serializer->denormalize($parameters, UserCombinedDto::class, null, [AbstractObjectNormalizer::DISABLE_TYPE_ENFORCEMENT => true]);
+            $userCombinedDto = $this->serializer->denormalize($parameters, UserRequestDto::class, null, [AbstractObjectNormalizer::DISABLE_TYPE_ENFORCEMENT => true]);
         } catch (NotEncodableValueException $e) {
             throw new BadRequestHttpException('Invalid format', $e);
         }
@@ -47,6 +47,6 @@ class UserCombinedParamConverter implements ParamConverterInterface
 
     public function supports(ParamConverter $configuration)
     {
-        return $configuration->getClass() === UserCombinedDto::class;
+        return $configuration->getClass() === UserRequestDto::class;
     }
 }

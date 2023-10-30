@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Provider;
+namespace App\Service\Provider;
 
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
 use App\Exception\ValidationException;
-use App\Model\Dto\UserCombinedDto;
+use App\Model\Dto\UserRequestDto;
 use App\Repository\UserRepository;
 use App\Transformer\UserTransformer;
 use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
@@ -28,7 +28,7 @@ class UserListProvider implements ProviderInterface
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): object|array|null
     {
         $parameters = $context['filters'] ?? null;
-        $userCombinedDto = $this->serializer->denormalize($parameters, UserCombinedDto::class, null, [AbstractObjectNormalizer::DISABLE_TYPE_ENFORCEMENT => true]);
+        $userCombinedDto = $this->serializer->denormalize($parameters, UserRequestDto::class, null, [AbstractObjectNormalizer::DISABLE_TYPE_ENFORCEMENT => true]);
 
         $errors = $this->validator->validate($userCombinedDto);
 

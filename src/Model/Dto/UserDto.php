@@ -10,11 +10,11 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
-use App\Processor\UserCreateProcessor;
-use App\Processor\UserDeleteProcessor;
-use App\Processor\UserUpdateProccesor;
-use App\Provider\UserListProvider;
-use App\Provider\UserProvider;
+use App\Service\Processor\UserCreateProcessor;
+use App\Service\Processor\UserDeleteProcessor;
+use App\Service\Processor\UserUpdateProccesor;
+use App\Service\Provider\UserListProvider;
+use App\Service\Provider\UserProvider;
 use OpenApi\Annotations as OA;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -48,7 +48,7 @@ use Symfony\Component\Validator\Constraints as Assert;
     normalizationContext: ['groups' => [self::USER_READ]],
     denormalizationContext: ['groups' => [self::USER_WRITE]],
 )]
-#[ApiFilter(UserCombinedDto::class)]
+#[ApiFilter(UserRequestDto::class)]
 class UserDto
 {
     const USER_READ = 'user:read';

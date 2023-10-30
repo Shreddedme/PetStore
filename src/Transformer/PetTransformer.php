@@ -31,11 +31,10 @@ class PetTransformer
         }
         $pet
             ->setName($petDto->getName())
-            ->setDescription($petDto->getDescription());;
+            ->setDescription($petDto->getDescription());
 
         return $pet;
     }
-
 
     public function toDto(Pet $pet): PetDto
     {

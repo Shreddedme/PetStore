@@ -22,14 +22,14 @@ services:
             - { name: request.param_converter, converter: user_param_converter }
 
     pet_sort_param_converter:
-        class: App\ParamConverter\PetCombinedParamConverter
+        class: App\ParamConverter\PetRequestParamConverter
         tags:
-            - { name: request.param_converter, converter: pet_combined_param_converter}
+            - { name: request.param_converter, converter: pet_request_param_converter}
 
     user_get_param_converter:
-        class: App\ParamConverter\UserCombinedParamConverter
+        class: App\ParamConverter\UserRequestParamConverter
         tags:
-            - { name: request.param_converter, converter: user_combined_param_converter }
+            - { name: request.param_converter, converter: user_request_param_converter }
 
     # makes classes in src/ available to be used as services
     # this creates a service per class whose id is the fully-qualified class name
