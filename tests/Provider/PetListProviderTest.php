@@ -16,7 +16,6 @@ use Doctrine\ORM\Tools\Pagination\Paginator;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
 use Symfony\Component\Serializer\Serializer;
-use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 use ApiPlatform\Validator\ValidatorInterface;
 
@@ -41,7 +40,6 @@ class PetListProviderTest extends TestCase
         $this->petTransformer = $this->createMock(PetTransformer::class);
         $this->operation = $this->createMock(Operation::class);
         $this->paginator = $this->createMock(Paginator::class);
-        $this->violation = $this->createMock(ConstraintViolation::class);
 
         $this->provider = new PetListProvider($this->petRepository, $this->serializer, $this->validator, $this->petTransformer);
     }
@@ -206,15 +204,12 @@ class PetListProviderTest extends TestCase
             )
             ->willReturn($expectedPetRequestDto);
 
-        $violationList = new ConstraintViolationList();
-        $violationList->add($this->violation);
-
         $this->expectException(ValidationException::class);
 
         $this->validator->expects($this->once())
             ->method('validate')
             ->with($expectedPetRequestDto)
-            ->willThrowException(new ValidationException($violationList));
+            ->willThrowException(new ValidationException(new ConstraintViolationList()));
 
         $this->petRepository->expects($this->never())
             ->method('findByFilter');
