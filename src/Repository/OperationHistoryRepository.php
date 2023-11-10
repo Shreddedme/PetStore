@@ -22,23 +22,14 @@ class OperationHistoryRepository extends ServiceEntityRepository
         parent::__construct($registry, OperationHistory::class);
     }
 
-    public function getLatestActions(): array
+    public function findLatestOperations(): array
     {
         return $this->createQueryBuilder('o')
             ->select('o')
             ->join('o.performedBy', 'u')
+            ->leftJoin('o.pet', 'pet')
             ->orderBy('o.operationDate', 'DESC')
             ->setMaxResults(self::COUNT)
-            ->getQuery()
-            ->getResult();
-    }
-
-    public function getActionCountForDate(string $targetDate = '2023-11-08 01:07:16'): array
-    {
-        return $this->createQueryBuilder('o')
-            ->select('COUNT(o.id) AS count')
-            ->where('o.operationDate = :targetDate')
-            ->setParameter('targetDate', $targetDate)
             ->getQuery()
             ->getResult();
     }

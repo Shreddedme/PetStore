@@ -13,11 +13,13 @@ class UserFixtures extends Fixture implements FixtureGroupInterface
 
     public function load(ObjectManager $manager)
     {
+        $userNames = ['John', 'Dave', 'Frank', 'Luke', 'Mike'];
 
         for ($i = 0; $i < self::USER_COUNT; $i++) {
+            $randomUserName = $userNames[array_rand($userNames)];
             $user = new User();
-            $user->setName('John');
-            $user->setEmail('john@example.com');
+            $user->setName($randomUserName);
+            $user->setEmail($randomUserName . $i . '@example.com');
             $user->setPassword(123456);
             $user->setRoles(['ROLE_USER']);
 

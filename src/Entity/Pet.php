@@ -4,6 +4,8 @@ namespace App\Entity;
 
 use App\Repository\PetRepository;
 use DateTime;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
@@ -33,6 +35,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 class Pet
 {
     public const PET_GET_GROUP = 'pet:get';
+    public const PET_SHORT_GROUP =  'pet:getShort';
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -50,7 +53,7 @@ class Pet
         pattern: '/^[a-zA-Z0-9\s]*$/',
         message: 'Forbidden characters cannot be entered'
     )]
-    #[Groups(self::PET_GET_GROUP)]
+    #[Groups([self::PET_GET_GROUP, self::PET_SHORT_GROUP])]
     private string $name;
 
     #[ORM\Column(type: Types::TEXT)]
@@ -88,6 +91,14 @@ class Pet
     #[ORM\JoinColumn(nullable: false)]
     #[Groups(self::PET_GET_GROUP)]
     private User $owner;
+
+    #[ORM\OneToMany(mappedBy: 'pet', targetEntity: OperationHistory::class)]
+    private Collection $operationHistory;
+
+    public function __construct()
+    {
+        $this->operationHistory = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -174,6 +185,36 @@ class Pet
     public function setOwner(?User $owner): static
     {
         $this->owner = $owner;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, OperationHistory>
+     */
+    public function getOperationHistory(): Collection
+    {
+        return $this->operationHistory;
+    }
+
+    public function addOperationHistory(OperationHistory $operationHistory): static
+    {
+        if (!$this->operationHistory->contains($operationHistory)) {
+            $this->operationHistory->add($operationHistory);
+            $operationHistory->setPet($this);
+        }
+
+        return $this;
+    }
+
+    public function removeOperationHistory(OperationHistory $operationHistory): static
+    {
+        if ($this->operationHistory->removeElement($operationHistory)) {
+            // set the owning side to null (unless already changed)
+            if ($operationHistory->getPet() === $this) {
+                $operationHistory->setPet(null);
+            }
+        }
 
         return $this;
     }

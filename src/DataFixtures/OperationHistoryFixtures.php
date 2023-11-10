@@ -20,12 +20,19 @@ class OperationHistoryFixtures extends Fixture implements FixtureGroupInterface
     public function load(ObjectManager $manager): void
     {
         $users = $this->userRepository->findAll();
+        $operationHistoryCount = 0;
 
-        for ($i = 0; $i < self::OPERATION_HISTORY_COUNT; $i++) {
-            $operationHistory = new OperationHistory();
-            $operationHistory->setPerformedBy($users[array_rand($users)]);
-
-            $manager->persist($operationHistory);
+        while ($operationHistoryCount < self::OPERATION_HISTORY_COUNT) {
+            $user = $users[array_rand($users)];
+            $pets = $user->getPet()->toArray();
+            if (count($pets) > 0) {
+                $operationHistory = new OperationHistory();
+                $pet = $pets[array_rand($pets)];
+                $operationHistory->setPerformedBy($user);
+                $operationHistory->setPet($pet);
+                $manager->persist($operationHistory);
+                $operationHistoryCount++;
+            }
         }
 
         $manager->flush();
