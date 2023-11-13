@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\OperationHistory;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\Query\ResultSetMapping;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -22,15 +23,30 @@ class OperationHistoryRepository extends ServiceEntityRepository
         parent::__construct($registry, OperationHistory::class);
     }
 
-    public function findLatestOperations(): array
+    public function findLatestOperationsByPet(): array
     {
-        return $this->createQueryBuilder('o')
-            ->select('o')
-            ->join('o.performedBy', 'u')
-            ->leftJoin('o.pet', 'pet')
-            ->orderBy('o.operationDate', 'DESC')
-            ->setMaxResults(self::COUNT)
-            ->getQuery()
-            ->getResult();
+        $sql = "
+            SELECT
+                operation_date,
+                performed_by_id,
+                pet_id
+            FROM (
+                     SELECT
+                         operation_date,
+                         performed_by_id,
+                         pet_id,
+                         ROW_NUMBER() OVER (PARTITION BY pet_id ORDER BY operation_date DESC) as row_num
+                     FROM operation_history
+                 ) AS ranked_operations
+            WHERE row_num = 1;
+        ";
+
+        $rsm = new ResultSetMapping();
+        $rsm->addScalarResult('operation_date', 'operation_date');
+        $rsm->addScalarResult('performed_by_id', 'performed_by_id');
+        $rsm->addScalarResult('pet_id', 'pet_id');
+        $query = $this->_em->createNativeQuery($sql, $rsm);
+
+        return $query->getResult();
     }
 }

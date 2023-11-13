@@ -5,7 +5,7 @@ namespace App\Entity;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\GetCollection;
 use App\Repository\OperationHistoryRepository;
-use App\Service\Provider\OperationHistoryProviderLatestActions;
+use App\Service\Provider\OperationHistoryLatestActionsProvider;
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
@@ -17,7 +17,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
         new GetCollection(
             uriTemplate: '/operationHistory/getLatestActions',
             normalizationContext: ['groups' => [self::OPERATION_HISTORY_GET, self::USER_SHORT_GET_GROUP, self::PET_GROUP_GET]],
-            provider: OperationHistoryProviderLatestActions::class,
+            provider: OperationHistoryLatestActionsProvider::class,
         ),
     ]
 )]
