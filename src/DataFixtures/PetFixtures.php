@@ -10,7 +10,7 @@ use Doctrine\Persistence\ObjectManager;
 
 class PetFixtures extends Fixture implements FixtureGroupInterface
 {
-    private const PET_COUNT = 1000;
+    private const PET_COUNT = 100;
 
     public function __construct(
         private UserRepository $userRepository,
@@ -21,11 +21,11 @@ class PetFixtures extends Fixture implements FixtureGroupInterface
     {
         $users = $this->userRepository->findAll();
         $petNames = ['Cat', 'Dog', 'Bird', 'Fish', 'Rabbit', 'Frog'];
-        $randomName = $petNames[array_rand($petNames)];
         $petDescriptions = ['Very lazy', 'Good', 'Quiet', 'Slow and calm', 'Small'];
-        $randomDescription = $petDescriptions[array_rand($petDescriptions)];
 
         for ($i = 0; $i < self::PET_COUNT; $i++) {
+            $randomName = $petNames[array_rand($petNames)];
+            $randomDescription = $petDescriptions[array_rand($petDescriptions)];
             $randomUser = $users[array_rand($users)];
             $pet = new Pet();
             $pet->setName($randomName);

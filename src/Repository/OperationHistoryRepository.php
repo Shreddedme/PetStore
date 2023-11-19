@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\OperationHistory;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\Query\ResultSetMapping;
+use Doctrine\ORM\Query\ResultSetMappingBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -27,24 +28,24 @@ class OperationHistoryRepository extends ServiceEntityRepository
     {
         $sql = "
             SELECT
+                id,
                 operation_date,
                 performed_by_id,
                 pet_id
             FROM (
                      SELECT
+                         id,
                          operation_date,
                          performed_by_id,
                          pet_id,
                          ROW_NUMBER() OVER (PARTITION BY pet_id ORDER BY operation_date DESC) as row_num
-                     FROM operation_history
+                     FROM operation_history as o 
                  ) AS ranked_operations
             WHERE row_num = 1;
         ";
 
-        $rsm = new ResultSetMapping();
-        $rsm->addScalarResult('operation_date', 'operation_date');
-        $rsm->addScalarResult('performed_by_id', 'performed_by_id');
-        $rsm->addScalarResult('pet_id', 'pet_id');
+        $rsm = new ResultSetMappingBuilder($this->_em);
+        $rsm->addRootEntityFromClassMetadata('App\Entity\OperationHistory', 'o');
         $query = $this->_em->createNativeQuery($sql, $rsm);
 
         return $query->getResult();

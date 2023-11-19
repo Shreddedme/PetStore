@@ -6,6 +6,7 @@ use App\Entity\OperationHistory;
 use App\Repository\UserRepository;
 use DateInterval;
 use DateTime;
+use DateTimeImmutable;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Bundle\FixturesBundle\FixtureGroupInterface;
 use Doctrine\Persistence\ObjectManager;
@@ -24,37 +25,46 @@ class OperationHistoryFixtures extends Fixture implements FixtureGroupInterface
         $users = $this->userRepository->findAll();
 
         $operationHistoryCount = 0;
-        $currentDate = new DateTime('now');
-        $userHasPets = false;
+        $currentDate = new DateTimeImmutable('now');
+        $hasPets = false;
 
         foreach ($users as $user) {
-            if (count($user->getPet()->toArray()) > 0) {
-                $userHasPets = true;
+            $pets = $user->getPet()->toArray();
+
+            if (count($pets) > 0) {
+                $hasPets = true;
                 break;
             }
         }
 
-        if ($userHasPets) {
-                while ($operationHistoryCount < self::OPERATION_HISTORY_COUNT) {
-                    $user = $users[array_rand($users)];
+        if ($hasPets) {
+            while ($operationHistoryCount < self::OPERATION_HISTORY_COUNT) {
+                foreach ($users as $user) {
                     $pets = $user->getPet()->toArray();
-                    if (count($pets) > 0) {
-                        $operationHistory = new OperationHistory();
-                        $pet = $pets[array_rand($pets)];
 
-                        $operationHistory->setOperationDate(clone $currentDate);
-                        $currentDate->add(new DateInterval('P2D'));
+                    if (count($pets) === 0) {
+                        continue;
+                    }
+
+                    foreach ($pets as $pet) {
+                        $operationHistory = new OperationHistory();
+                        $operationHistory->setOperationDate(DateTime::createFromImmutable($currentDate));
+
+                        $currentDate = $currentDate->add(new DateInterval('P2D'));
 
                         $operationHistory->setPerformedBy($user);
                         $operationHistory->setPet($pet);
+
                         $manager->persist($operationHistory);
+
                         $operationHistoryCount++;
                     }
                 }
-
-                $manager->flush();
             }
         }
+
+        $manager->flush();
+    }
 
     public static function getGroups(): array
     {
