@@ -37,31 +37,33 @@ class OperationHistoryFixtures extends Fixture implements FixtureGroupInterface
             }
         }
 
-        if ($hasPets) {
-            while ($operationHistoryCount < self::OPERATION_HISTORY_COUNT) {
-                foreach ($users as $user) {
-                    $pets = $user->getPet()->toArray();
+        if (!$hasPets) {
+            return;
+        }
 
-                    if (count($pets) === 0) {
-                        continue;
-                    }
+        do {
+            foreach ($users as $user) {
+                $pets = $user->getPet()->toArray();
 
-                    foreach ($pets as $pet) {
-                        $operationHistory = new OperationHistory();
-                        $operationHistory->setOperationDate(DateTime::createFromImmutable($currentDate));
+                if (count($pets) === 0) {
+                    continue;
+                }
 
-                        $currentDate = $currentDate->add(new DateInterval('P2D'));
+                foreach ($pets as $pet) {
+                    $operationHistory = new OperationHistory();
+                    $operationHistory->setOperationDate(DateTime::createFromImmutable($currentDate));
 
-                        $operationHistory->setPerformedBy($user);
-                        $operationHistory->setPet($pet);
+                    $currentDate = $currentDate->add(new DateInterval('P2D'));
 
-                        $manager->persist($operationHistory);
+                    $operationHistory->setPerformedBy($user);
+                    $operationHistory->setPet($pet);
 
-                        $operationHistoryCount++;
-                    }
+                    $manager->persist($operationHistory);
+
+                    $operationHistoryCount++;
                 }
             }
-        }
+        } while ($operationHistoryCount < self::OPERATION_HISTORY_COUNT);
 
         $manager->flush();
     }
