@@ -6,6 +6,7 @@ use App\Exception\EntityNotFoundException;
 use App\Repository\PetRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\PessimisticLockException;
+use Exception;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -45,7 +46,7 @@ class PetUpdateTransaction extends Command
             $this->entityManager->commit();
 
             $output->writeln('Pets updated successfully');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->entityManager->rollback();
 
             throw $e;

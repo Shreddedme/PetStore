@@ -182,7 +182,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @return Collection<int, Pet>
      */
-    public function getPet(): Collection
+    public function getPets(): Collection
     {
         return $this->pet;
     }

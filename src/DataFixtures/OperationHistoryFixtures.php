@@ -29,7 +29,7 @@ class OperationHistoryFixtures extends Fixture implements FixtureGroupInterface
         $hasPets = false;
 
         foreach ($users as $user) {
-            $pets = $user->getPet()->toArray();
+            $pets = $user->getPets()->toArray();
 
             if (count($pets) > 0) {
                 $hasPets = true;
@@ -43,7 +43,7 @@ class OperationHistoryFixtures extends Fixture implements FixtureGroupInterface
 
         do {
             foreach ($users as $user) {
-                $pets = $user->getPet()->toArray();
+                $pets = $user->getPets()->toArray();
 
                 if (count($pets) === 0) {
                     continue;
