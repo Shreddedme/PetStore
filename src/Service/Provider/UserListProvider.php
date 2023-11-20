@@ -4,21 +4,23 @@ namespace App\Service\Provider;
 
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
+use ApiPlatform\Validator\ValidatorInterface;
 use App\Exception\ValidationException;
 use App\Model\Dto\UserRequestDto;
 use App\Repository\UserRepository;
 use App\Transformer\UserTransformer;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
 use Symfony\Component\Serializer\SerializerInterface;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class UserListProvider implements ProviderInterface
 {
     public function __construct(
         private UserRepository $userRepository,
         private SerializerInterface $serializer,
-        private ValidatorInterface $validator,
         private UserTransformer $userTransformer,
+        private LoggerInterface $logger,
+        private ValidatorInterface $validator,
     )
     {}
 
@@ -28,14 +30,18 @@ class UserListProvider implements ProviderInterface
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): object|array|null
     {
         $parameters = $context['filters'] ?? null;
-        $userCombinedDto = $this->serializer->denormalize($parameters, UserRequestDto::class, null, [AbstractObjectNormalizer::DISABLE_TYPE_ENFORCEMENT => true]);
+        $userCombinedDto = $this->serializer->denormalize(
+            $parameters,
+            UserRequestDto::class,
+            null,
+            [AbstractObjectNormalizer::DISABLE_TYPE_ENFORCEMENT => true]
+        );
 
-        $errors = $this->validator->validate($userCombinedDto);
+        $this->logger->debug(null, $context);
 
-        if (count($errors) > 0) {
-            throw new ValidationException($errors);
-        }
-       $users = $this->userRepository->getAllUsers($userCombinedDto);
+        $this->validator->validate($userCombinedDto);
+
+        $users = $this->userRepository->getAllUsers($userCombinedDto);
 
        $userDtos = [];
 

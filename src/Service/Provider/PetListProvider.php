@@ -29,15 +29,14 @@ class PetListProvider implements ProviderInterface
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): object|array|null
     {
         $parameters = $context['filters'] ?? null;
-
-        $this->logger->debug(json_encode($context, JSON_THROW_ON_ERROR));
-
         $petCombinedDto = $this->serializer->denormalize(
             $parameters,
             PetRequestDto::class,
             null,
             [AbstractObjectNormalizer::DISABLE_TYPE_ENFORCEMENT => true]
         );
+
+        $this->logger->debug(null, $context);
 
         $this->validator->validate($petCombinedDto);
 
