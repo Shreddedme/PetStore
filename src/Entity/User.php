@@ -89,9 +89,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(mappedBy: 'owner', targetEntity: Pet::class)]
     private Collection $pet;
 
+    #[ORM\OneToMany(mappedBy: 'performedBy', targetEntity: OperationHistory::class)]
+    private Collection $operationHistories;
+
     public function __construct()
     {
         $this->pet = new ArrayCollection();
+        $this->operationHistories = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -178,7 +182,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @return Collection<int, Pet>
      */
-    public function getPet(): Collection
+    public function getPets(): Collection
     {
         return $this->pet;
     }
@@ -240,5 +244,35 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function getUserIdentifier(): string
     {
         return (string) $this->email;
+    }
+
+    /**
+     * @return Collection<int, OperationHistory>
+     */
+    public function getOperationHistories(): Collection
+    {
+        return $this->operationHistories;
+    }
+
+    public function addOperationHistory(OperationHistory $operationHistory): static
+    {
+        if (!$this->operationHistories->contains($operationHistory)) {
+            $this->operationHistories->add($operationHistory);
+            $operationHistory->setPerformedBy($this);
+        }
+
+        return $this;
+    }
+
+    public function removeOperationHistory(OperationHistory $operationHistory): static
+    {
+        if ($this->operationHistories->removeElement($operationHistory)) {
+            // set the owning side to null (unless already changed)
+            if ($operationHistory->getPerformedBy() === $this) {
+                $operationHistory->setPerformedBy(null);
+            }
+        }
+
+        return $this;
     }
 }
