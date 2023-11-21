@@ -37,7 +37,7 @@ class UserListProvider implements ProviderInterface
             [AbstractObjectNormalizer::DISABLE_TYPE_ENFORCEMENT => true]
         );
 
-        $this->logger->debug(null, $context);
+        $this->logger->debug('Error in user list request', $context);
 
         $this->validator->validate($userCombinedDto);
 

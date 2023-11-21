@@ -104,8 +104,6 @@ class PetWebController extends AbstractController
         ]);
     }
 
-    /**
-     */
     #[Route('/pet/delete/{id}', name: 'app_pet_delete')]
     public function delete(int $id): Response
     {

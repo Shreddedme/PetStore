@@ -4,6 +4,7 @@ namespace App\Service\Provider;
 
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
+use App\Entity\User;
 use App\Exception\EntityNotFoundException;
 use App\Repository\UserRepository;
 use App\Transformer\UserTransformer;
@@ -23,14 +24,12 @@ class UserProvider implements ProviderInterface
      */
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): object|array|null
     {
-        $userId = $this->userRepository->find($uriVariables['id']);
+        $this->logger->info('Attempting to fetch user with id: ' . $uriVariables['id']);
 
-        $this->logger->info('Attempting to fetch user with id: ' . $userId);
-
-        $user = $this->userRepository->find($userId);
+        $user = $this->userRepository->find($uriVariables['id']);
 
         if (!$user) {
-            throw new EntityNotFoundException('User not found', $userId);
+            throw new EntityNotFoundException(User::class, $uriVariables['id']);
         }
 
         $this->logger->info('User successfully fetched');

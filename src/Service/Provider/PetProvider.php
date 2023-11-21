@@ -4,6 +4,7 @@ namespace App\Service\Provider;
 
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
+use App\Entity\Pet;
 use App\Exception\EntityNotFoundException;
 use App\Repository\PetRepository;
 use App\Transformer\PetTransformer;
@@ -23,14 +24,12 @@ class PetProvider implements ProviderInterface
      */
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): object|array|null
     {
-            $petId = $uriVariables['id'] ?? null;
+        $this->logger->info('Attempting to fetch pet with id: ' . $uriVariables['id']);
 
-            $this->logger->info('Attempting to fetch pet with id: ' . $petId);
-
-            $pet = $this->petRepository->find($petId);
+        $pet = $this->petRepository->find($uriVariables['id']);
 
             if (!$pet) {
-                throw new EntityNotFoundException('Pet not found', $petId);
+                throw new EntityNotFoundException(Pet::class, $uriVariables['id']);
             }
 
             $this->logger->info('Pet successfully fetched');

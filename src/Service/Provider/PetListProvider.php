@@ -36,7 +36,7 @@ class PetListProvider implements ProviderInterface
             [AbstractObjectNormalizer::DISABLE_TYPE_ENFORCEMENT => true]
         );
 
-        $this->logger->debug(null, $context);
+        $this->logger->debug('Error in pet list request', $context);
 
         $this->validator->validate($petCombinedDto);
 
