@@ -14,6 +14,7 @@ use App\Transformer\PetTransformer;
 use DateTime;
 use Doctrine\ORM\Tools\Pagination\Paginator;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
 use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Validator\ConstraintViolationList;
@@ -31,6 +32,7 @@ class PetListProviderTest extends TestCase
     private Operation $operation;
     private Paginator $paginator;
     private PetListProvider $provider;
+    private LoggerInterface $logger;
 
     public function setUp(): void
     {
@@ -40,8 +42,15 @@ class PetListProviderTest extends TestCase
         $this->petTransformer = $this->createMock(PetTransformer::class);
         $this->operation = $this->createMock(Operation::class);
         $this->paginator = $this->createMock(Paginator::class);
+        $this->logger = $this->createMock(LoggerInterface::class);
 
-        $this->provider = new PetListProvider($this->petRepository, $this->serializer, $this->validator, $this->petTransformer);
+        $this->provider = new PetListProvider(
+            $this->petRepository,
+            $this->serializer,
+            $this->validator,
+            $this->petTransformer,
+            $this->logger
+        );
     }
 
     /**
