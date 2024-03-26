@@ -1,0 +1,27 @@
+name: Codecov
+on: [push, pull_request]
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          coverage: xdebug
+          fetch-depth: 0
+      - uses: actions/checkout@v2
+      - name: Validate composer.json and composer.lock
+        run: composer validate
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress --no-suggest
+      - name: Run tests with phpunit
+        run: ./vendor/bin/phpunit --coverage-clover=coverage.xml
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          file: ./coverage.xml
+          flags: unittests
+          name: codecov-umbrella
+          fail_ci_if_error: true
