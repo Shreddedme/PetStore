@@ -31,7 +31,7 @@ class PetUpdateTransaction extends Command
      * @throws PessimisticLockException
      * @throws EntityNotFoundException
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    public function execute(InputInterface $input, OutputInterface $output)
     {
         try {
             $this->entityManager->beginTransaction();

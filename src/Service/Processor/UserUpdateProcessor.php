@@ -9,7 +9,7 @@ use App\Model\Dto\UserDto;
 use App\Transformer\UserTransformer;
 use Doctrine\ORM\EntityManagerInterface;
 
-class UserUpdateProccesor implements ProcessorInterface
+class UserUpdateProcessor implements ProcessorInterface
 {
     public function __construct(
         private EntityManagerInterface $entityManager,
@@ -31,6 +31,4 @@ class UserUpdateProccesor implements ProcessorInterface
 
         return $this->userTransformer->toDto($user);
     }
-
-
 }
