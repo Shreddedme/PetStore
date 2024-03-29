@@ -106,4 +106,22 @@ class PetTransformerTest extends TestCase
         $this->assertSame($pet->getDescription(), $resultPet->getDescription());
         $this->assertSame($this->user, $resultPet->getOwner());
     }
+
+    /**
+     * @test
+     * @covers PetTransformer::find
+     */
+    public function findPetNotFound(): void
+    {
+        $petId = 1;
+
+        $this->petRepository->expects($this->once())
+            ->method('find')
+            ->with($petId)
+            ->willReturn(null);
+
+        $this->expectException(EntityNotFoundException::class);
+
+        $this->petTransformer->find($petId);
+    }
 }

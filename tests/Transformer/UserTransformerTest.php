@@ -3,6 +3,7 @@
 namespace App\Tests\Transformer;
 
 use App\Entity\User;
+use App\Exception\EntityNotFoundException;
 use App\Model\Dto\UserDto;
 use App\Repository\UserRepository;
 use App\Transformer\UserTransformer;
@@ -81,5 +82,23 @@ class UserTransformerTest extends TestCase
         $resultUser = $this->userTransformer->find($userId);
 
         $this->assertEquals($user, $resultUser);
+    }
+
+    /**
+     * @test
+     * @covers PetTransformer::find
+     */
+    public function findPetNotFound(): void
+    {
+        $userId = 1;
+
+        $this->userRepository->expects($this->once())
+            ->method('find')
+            ->with($userId)
+            ->willReturn(null);
+
+        $this->expectException(EntityNotFoundException::class);
+
+        $this->userTransformer->find($userId);
     }
 }
