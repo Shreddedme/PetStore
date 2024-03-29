@@ -13,6 +13,7 @@ use ApiPlatform\Metadata\Put;
 use App\Service\Processor\UserCreateProcessor;
 use App\Service\Processor\UserDeleteProcessor;
 use App\Service\Processor\UserUpdateProccesor;
+use App\Service\Processor\UserUpdateProcessor;
 use App\Service\Provider\UserListProvider;
 use App\Service\Provider\UserProvider;
 use OpenApi\Annotations as OA;
@@ -37,7 +38,7 @@ use Symfony\Component\Validator\Constraints as Assert;
             uriTemplate: '/user/{id}',
             denormalizationContext:['groups' => [self::USER_PUT]],
             provider: UserProvider::class,
-            processor: UserUpdateProccesor::class,
+            processor: UserUpdateProcessor::class,
         ),
         new Delete(
             uriTemplate: '/user/{id}',
