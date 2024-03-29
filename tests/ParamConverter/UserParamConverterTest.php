@@ -4,6 +4,7 @@ namespace App\Tests\ParamConverter;
 
 use App\Exception\ValidationException;
 use App\Model\Dto\UserDto;
+use App\ParamConverter\PetParamConverter;
 use App\ParamConverter\UserParamConverter;
 use PHPUnit\Framework\TestCase;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
@@ -59,6 +60,16 @@ class UserParamConverterTest extends TestCase
         $this->expectException(ValidationException::class);
 
         $petParamConverter->apply($request, $configuration);
+    }
+
+    public function testSupports(): void
+    {
+        $configuration = new ParamConverter(['class' => UserDto::class]);
+
+        $petParamConverter = new UserParamConverter($this->serializer, $this->validator);
+        $supports = $petParamConverter->supports($configuration);
+
+        $this->assertTrue($supports);
     }
 
     public function testApplyThrowsBadRequestHttpException(): void

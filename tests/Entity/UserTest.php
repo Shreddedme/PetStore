@@ -5,6 +5,7 @@ namespace App\Tests\Entity;
 use App\Entity\OperationHistory;
 use App\Entity\Pet;
 use App\Entity\User;
+use DateTime;
 use PHPUnit\Framework\TestCase;
 
 class UserTest extends TestCase
@@ -43,5 +44,18 @@ class UserTest extends TestCase
 
         $operationHistory = new OperationHistory();
         $user->addOperationHistory($operationHistory);
+        $this->assertSame($operationHistory, $user->getOperationHistories()->first());
+
+        $pet = new Pet();
+        $user->addPet($pet);
+        $this->assertEquals($pet, $user->getPets()->first());
+
+        $createdAt = new DateTime();
+        $user->setCreatedAt($createdAt);
+        $this->assertSame($createdAt, $user->getCreatedAt());
+
+        $updatedAt = new DateTime();
+        $user->setUpdatedAt($updatedAt);
+        $this->assertSame($updatedAt, $user->getUpdatedAt());
     }
 }

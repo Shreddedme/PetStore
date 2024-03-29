@@ -77,4 +77,14 @@ class PetRequestParamConverterTest extends TestCase
 
         $petParamConverter->apply($request, $configuration);
     }
+
+    public function testSupports(): void
+    {
+        $configuration = new ParamConverter(['class' => PetRequestDto::class]);
+
+        $petParamConverter = new PetRequestParamConverter($this->serializer, $this->validator);
+        $supports = $petParamConverter->supports($configuration);
+
+        $this->assertTrue($supports);
+    }
 }

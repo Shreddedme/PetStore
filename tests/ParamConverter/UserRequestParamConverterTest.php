@@ -79,4 +79,14 @@ class UserRequestParamConverterTest extends TestCase
 
         $petParamConverter->apply($request, $configuration);
     }
+
+    public function testSupports(): void
+    {
+        $configuration = new ParamConverter(['class' => UserRequestDto::class]);
+
+        $petParamConverter = new UserRequestParamConverter($this->serializer, $this->validator);
+        $supports = $petParamConverter->supports($configuration);
+
+        $this->assertTrue($supports);
+    }
 }

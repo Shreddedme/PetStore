@@ -13,6 +13,13 @@ class OperationHistoryTest extends TestCase
     {
         $operationHistory = new OperationHistory();
 
+        $id = 123;
+        $reflection = new \ReflectionClass(OperationHistory::class);
+        $property = $reflection->getProperty('id');
+        $property->setValue($operationHistory, $id);
+
+        $this->assertSame($id, $operationHistory->getId());
+
         $user = new User();
         $operationHistory->setPerformedBy($user);
         $this->assertSame($user, $operationHistory->getPerformedBy());

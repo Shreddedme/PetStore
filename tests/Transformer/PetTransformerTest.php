@@ -4,6 +4,7 @@ namespace App\Tests\Transformer;
 
 use App\Entity\Pet;
 use App\Entity\User;
+use App\Exception\EntityNotFoundException;
 use App\Model\Dto\PetDto;
 use App\Repository\PetRepository;
 use App\Transformer\PetTransformer;
@@ -39,6 +40,7 @@ class PetTransformerTest extends TestCase
             ->setUpdatedBy(1)
             ->setOwner($this->user);
         $pet = new Pet();
+        $pet->setOwner($this->user);
 
         $this->petRepository->expects($this->once())
             ->method('find')
@@ -48,6 +50,9 @@ class PetTransformerTest extends TestCase
         $resultPet = $this->petTransformer->toEntity($petId, $petDto, $this->user);
 
         $this->assertEquals($pet, $resultPet);
+        $this->assertSame($petDto->getName(), $resultPet->getName());
+        $this->assertSame($petDto->getDescription(), $resultPet->getDescription());
+        $this->assertSame($this->user, $resultPet->getOwner());
     }
 
     /**
@@ -68,6 +73,9 @@ class PetTransformerTest extends TestCase
         $resultDto = $this->petTransformer->toDto($pet);
 
         $this->assertInstanceOf(PetDto::class, $resultDto);
+        $this->assertSame($pet->getName(), $resultDto->getName());
+        $this->assertSame($pet->getDescription(), $resultDto->getDescription());
+        $this->assertSame($this->user, $resultDto->getOwner());
     }
 
     /**
@@ -94,5 +102,8 @@ class PetTransformerTest extends TestCase
         $resultPet = $this->petTransformer->find($petId);
 
         $this->assertEquals($pet, $resultPet);
+        $this->assertSame($pet->getName(), $resultPet->getName());
+        $this->assertSame($pet->getDescription(), $resultPet->getDescription());
+        $this->assertSame($this->user, $resultPet->getOwner());
     }
 }

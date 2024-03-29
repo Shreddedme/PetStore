@@ -35,20 +35,20 @@ class LoginAuthenticatorTest extends TestCase
         $this->assertEquals('test@example.com', $passport->getBadge(UserBadge::class)->getUserIdentifier());
     }
 
-    public function testOnAuthenticationSuccess(): void
+    public function testOnAuthenticationSuccessWithTargetPath(): void
     {
         $request = new Request();
-        $request->setSession(new Session(new MockArraySessionStorage()));
+        $session = new Session(new MockArraySessionStorage());
+        $session->set('_security.main.target_path', '/target_path');
+        $request->setSession($session);
         $token = $this->createMock(TokenInterface::class);
         $firewallName = 'main';
-
-        $this->urlGenerator->method('generate')->willReturn('/select_menu');
 
         $loginAuthenticator = new LoginAuthenticator($this->urlGenerator);
         $response = $loginAuthenticator->onAuthenticationSuccess($request, $token, $firewallName);
 
         $this->assertInstanceOf(RedirectResponse::class, $response);
-        $this->assertSame('/select_menu', $response->getTargetUrl());
+        $this->assertSame('/target_path', $response->getTargetUrl());
     }
 
     public function testStart(): void
